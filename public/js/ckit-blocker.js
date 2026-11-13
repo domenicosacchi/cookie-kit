@@ -1,7 +1,8 @@
 /*!
  * CookieKit — Blocker (head)
- * Carica in <head> prima di tutti gli script di tracciamento.
- * Espone window.CKIT.consent come oggetto e l'API per l'aggiornamento dei segnali Consent Mode v2.
+ * Loaded in <head>, before tracking scripts.
+ * Exposes window.CKIT.consent and window.CKIT.applyConsent(), which sends the Consent Mode v2
+ * "update" and re-activates blocked scripts and iframes for the accepted categories.
  */
 (function () {
 	'use strict';
@@ -38,7 +39,7 @@
 		timestamp: stored.timestamp || null
 	};
 
-	// Aggiorna Consent Mode v2 in caso di consenso esistente all'avvio.
+	// On page load, send the Consent Mode v2 update if a valid consent already exists.
 	if (typeof window.gtag === 'function' && consentGiven) {
 		var update = {
 			ad_storage: categories.marketing ? 'granted' : 'denied',
@@ -52,7 +53,7 @@
 		window.gtag('consent', 'update', update);
 	}
 
-	// API per il banner (chiamata al click di Accetta/Rifiuta/Salva).
+	// API used by the banner (called on Accept / Reject / Save).
 	window.CKIT.applyConsent = function (cats) {
 		var update = {
 			ad_storage: cats.marketing ? 'granted' : 'denied',
@@ -66,13 +67,13 @@
 		if (typeof window.gtag === 'function') {
 			window.gtag('consent', 'update', update);
 		}
-		// Sblocca <script type="text/plain" data-ckit-category="X"> per le categorie acconsentite.
+		// Unblock <script type="text/plain" data-ckit-category="X"> for the accepted categories.
 		var nodes = document.querySelectorAll('script[type="text/plain"][data-ckit-category]');
 		nodes.forEach(function (node) {
 			var cat = node.getAttribute('data-ckit-category');
 			if (!cats[cat]) return;
 			var s = document.createElement('script');
-			// Copia attributi (eccetto type/data-ckit-*).
+			// Copy attributes (except type and data-ckit-*).
 			for (var i = 0; i < node.attributes.length; i++) {
 				var a = node.attributes[i];
 				if (a.name === 'type' || a.name.indexOf('data-ckit-') === 0) continue;
@@ -87,7 +88,7 @@
 			node.parentNode.insertBefore(s, node);
 			node.remove();
 		});
-		// Sblocca iframe placeholder.
+		// Unblock iframe placeholders.
 		var phs = document.querySelectorAll('.ckit-iframe-placeholder');
 		phs.forEach(function (ph) {
 			var cat = ph.getAttribute('data-ckit-category');

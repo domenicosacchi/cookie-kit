@@ -1,13 +1,13 @@
 /*!
- * CookieKit — Snapshot client-side multi-pagina.
- * Si carica SOLO se l'utente è admin loggato e l'URL contiene ?ckit-snapshot=1.
- * In modalità snapshot: blocker disattivato, banner non mostrato, Consent Mode v2 = granted.
+ * CookieKit — Multi-page client-side snapshot.
+ * Loaded ONLY for a logged-in administrator when the URL contains ?ckit-snapshot=1.
+ * In snapshot mode the blocker is disabled and Consent Mode v2 defaults are "granted".
  *
- * Flusso:
- *  1) attende 5s che gli script di tracking installino cookie nativi
- *  2) legge document.cookie e lo invia via REST a /cookiekit/v1/snapshot
- *  3) avanza alla pagina successiva (sessionStorage tiene traccia dell'indice)
- *  4) ripete fino all'ultima pagina, poi mostra summary
+ * Flow:
+ *  1) wait 5s for tracking scripts to set their cookies
+ *  2) read document.cookie and send the names via REST to /cookiekit/v1/snapshot
+ *  3) move to the next page (sessionStorage keeps track of the index)
+ *  4) repeat until the last page, then show a summary
  */
 (function () {
 	'use strict';
@@ -15,6 +15,17 @@
 	if (!window.CKIT_SNAP) return;
 	var CFG = window.CKIT_SNAP;
 	var STATE_KEY = 'ckit-snapshot-state';
+	var T = CFG.i18n || {};
+
+	// Minimal sprintf: replaces %s and %1$s-style placeholders.
+	function fmt(str) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var i = 0;
+		return String(str || '').replace(/%(?:(\d+)\$)?s/g, function (m, n) {
+			var v = n ? args[parseInt(n, 10) - 1] : args[i++];
+			return v === undefined ? '' : String(v);
+		});
+	}
 
 	function el(tag, attrs) {
 		var n = document.createElement(tag);
@@ -26,13 +37,22 @@
 		var box = el('div');
 		box.id = 'ckit-snap-overlay';
 		box.style.cssText = 'position:fixed;top:20px;right:20px;width:360px;background:#0a3d62;color:#fff;padding:18px 22px;border-radius:10px;font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:2147483647';
-		box.innerHTML = '<div style="font-weight:700;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span class="ckit-snap-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffe066;animation:ckit-pulse 1s infinite"></span> CookieKit Snapshot</div><div id="ckit-snap-status">Avvio...</div><div id="ckit-snap-progress" style="margin-top:10px;font-size:11px;opacity:.85"></div><style>@keyframes ckit-pulse{0%,100%{opacity:1}50%{opacity:.3}}</style>';
+		box.innerHTML = '<div style="font-weight:700;font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span class="ckit-snap-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffe066;animation:ckit-pulse 1s infinite"></span> CookieKit Snapshot</div><div id="ckit-snap-status"></div><div id="ckit-snap-progress" style="margin-top:10px;font-size:11px;opacity:.85"></div><style>@keyframes ckit-pulse{0%,100%{opacity:1}50%{opacity:.3}}</style>';
 		document.body.appendChild(box);
+		document.getElementById('ckit-snap-status').textContent = T.starting || 'Starting...';
 		return {
 			set: function (msg) { document.getElementById('ckit-snap-status').textContent = msg; },
-			progress: function (i, n) { document.getElementById('ckit-snap-progress').textContent = 'Pagina ' + i + ' / ' + n; },
+			progress: function (i, n) { document.getElementById('ckit-snap-progress').textContent = fmt(T.progress || 'Page %1$s / %2$s', i, n); },
 			done: function (msg) {
-				document.getElementById('ckit-snap-status').innerHTML = '✓ ' + msg + '<br><br><a href="' + CFG.adminUrl + '" style="color:#ffe066;text-decoration:underline">Torna al pannello scanner</a>';
+				var status = document.getElementById('ckit-snap-status');
+				status.textContent = '✓ ' + msg;
+				status.appendChild(document.createElement('br'));
+				status.appendChild(document.createElement('br'));
+				var link = document.createElement('a');
+				link.href = CFG.adminUrl;
+				link.style.cssText = 'color:#ffe066;text-decoration:underline';
+				link.textContent = T.backToPanel || 'Back to the scanner panel';
+				status.appendChild(link);
 				box.style.background = '#1b6e3a';
 				var dot = box.querySelector('.ckit-snap-dot');
 				if (dot) dot.style.animation = 'none';
@@ -80,20 +100,20 @@
 			state = { index: 0, total: pages.length, totalCookies: 0 };
 			saveState(state);
 		}
-		var idx = state.index + 1; // 1-based for display
+		var idx = state.index + 1; // 1-based for display.
 		ui.progress(idx, state.total);
-		ui.set('Caricamento pagina ' + idx + '. Attendo ' + CFG.waitSeconds + 's per gli script di tracking...');
+		ui.set(fmt(T.loading || 'Loading page %1$s. Waiting %2$ss for tracking scripts...', idx, CFG.waitSeconds));
 
-		// Attendi che gli script di tracking installino i loro cookie.
+		// Wait for tracking scripts to set their cookies.
 		var waitMs = (CFG.waitSeconds || 5) * 1000;
 		var step = 1000, elapsed = 0;
 		var iv = setInterval(function () {
 			elapsed += step;
-			ui.set('Pagina ' + idx + ' — attesa cookie (' + (elapsed / 1000) + 's / ' + (waitMs / 1000) + 's)');
+			ui.set(fmt(T.waiting || 'Page %1$s — waiting for cookies (%2$ss / %3$ss)', idx, elapsed / 1000, waitMs / 1000));
 			if (elapsed >= waitMs) {
 				clearInterval(iv);
 				var cookies = readAllCookies();
-				ui.set('Pagina ' + idx + ' — trovati ' + cookies.length + ' cookie. Invio al server...');
+				ui.set(fmt(T.found || 'Page %1$s — found %2$s cookies. Sending to the server...', idx, cookies.length));
 				send(cookies, location.href).then(function (res) {
 					if (res && res.ok) {
 						state.totalCookies += res.count;
@@ -101,18 +121,18 @@
 						saveState(state);
 						if (state.index >= state.total) {
 							clearState();
-							ui.done('Snapshot completato — ' + state.totalCookies + ' cookie totali salvati su ' + state.total + ' pagine.');
+							ui.done(fmt(T.done || 'Snapshot completed — %1$s cookies saved in total across %2$s pages.', state.totalCookies, state.total));
 						} else {
 							var next = pages[state.index];
-							ui.set('✓ Pagina ' + idx + ' fatta. Vado alla successiva fra 1s...');
+							ui.set('✓ ' + fmt(T.next || 'Page %s done. Moving to the next one in 1s...', idx));
 							setTimeout(function () { location.href = next; }, 1000);
 						}
 					} else {
-						ui.error('Errore invio: ' + (res && res.error ? res.error : 'risposta non valida'));
+						ui.error(fmt(T.sendError || 'Send error: %s', (res && res.error) ? res.error : (T.badResponse || 'invalid response')));
 						clearState();
 					}
 				}).catch(function (e) {
-					ui.error('Errore di rete: ' + e.message);
+					ui.error(fmt(T.netError || 'Network error: %s', e.message));
 					clearState();
 				});
 			}

@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       CookieKit
- * Plugin URI:        https://github.com/example/cookie-kit
- * Description:       Consent Management Platform conforme al provvedimento del Garante Privacy 231/2021. Banner, auto-blocco script terze parti, Google Consent Mode v2, scanner cookie, log consensi esportabili.
- * Version:           1.1.10
+ * Plugin URI:        https://github.com/domenicosacchi/cookie-kit
+ * Description:       Self-hosted cookie consent banner designed around the Italian Data Protection Authority guidelines (Garante Privacy, provvedimento 231/2021, 10 June 2021) and Google Consent Mode v2. Third-party script auto-blocking, cookie scanner, exportable consent log.
+ * Version:           1.2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            CookieKit
- * Author URI:        https://github.com/example/cookie-kit
+ * Author:            Domenico Sacchi
+ * Author URI:        https://github.com/domenicosacchi/cookie-kit
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       cookie-kit
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'CKIT_VERSION', '1.1.10' );
+define( 'CKIT_VERSION', '1.2.0' );
 define( 'CKIT_PLUGIN_FILE', __FILE__ );
 define( 'CKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CKIT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -29,7 +29,7 @@ define( 'CKIT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'CKIT_DB_VERSION', '1.0' );
 define( 'CKIT_OPTION_KEY', 'ckit_settings' );
 define( 'CKIT_CONSENT_COOKIE', 'ckit_consent' );
-define( 'CKIT_REPROMPT_DAYS', 180 ); // 6 mesi.
+define( 'CKIT_REPROMPT_DAYS', 180 ); // Days before the banner is shown again.
 
 // Autoloader for plugin classes (CKIT_* prefix).
 spl_autoload_register(

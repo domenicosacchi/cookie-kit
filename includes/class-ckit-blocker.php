@@ -1,13 +1,13 @@
 <?php
 /**
- * Blocker — Auto-blocco script di terze parti finché non c'è consenso.
- * Funziona in due strati:
- *  1) Filtra l'output WP (script_loader_tag, wp_footer/header inline) sostituendo `src` e `type`
- *     con `data-ckit-src` e `type="text/plain"` per gli script noti come trackers.
- *  2) Filtra il contenuto post (the_content) per disinnescare iframe di YouTube/Vimeo/Maps,
- *     sostituendoli con placeholder click-to-load.
- * Dopo il consenso, lo script frontend (ckit-blocker.js) riattiva tutti gli elementi
- * marcati con data-ckit-* secondo le categorie acconsentite.
+ * Blocker — Auto-blocks third-party scripts until consent is given.
+ * Works in two layers:
+ *  1) Filters enqueued scripts (script_loader_tag), replacing `src` and `type` with
+ *     `data-ckit-src` and `type="text/plain"` for scripts that match a configured vendor.
+ *  2) Filters post content (the_content) to defuse YouTube/Vimeo/Maps iframes,
+ *     replacing them with click-to-load placeholders.
+ * After consent, the front-end script (ckit-blocker.js) re-activates every element
+ * marked with data-ckit-* according to the accepted categories.
  *
  * @package CookieKit
  */
@@ -24,7 +24,7 @@ class CKIT_Blocker {
 		if ( ! CKIT_Core::settings( 'enabled', 1 ) ) {
 			return;
 		}
-		// Snapshot mode: blocker disattivato per far partire script terzi nativi.
+		// Snapshot mode: blocker disabled so that third-party scripts run natively.
 		if ( CKIT_Core::is_snapshot_mode() ) {
 			return;
 		}
@@ -73,7 +73,7 @@ class CKIT_Blocker {
 			CKIT_PLUGIN_URL . 'public/js/ckit-blocker.js',
 			array(),
 			CKIT_VERSION,
-			false // in <head>, non in footer.
+			false // In <head>, not in the footer.
 		);
 		wp_localize_script(
 			'ckit-blocker',
@@ -86,14 +86,14 @@ class CKIT_Blocker {
 	}
 
 	/**
-	 * Sposta gli script di tracking conosciuti in stato "type=text/plain" finché non c'è consenso.
+	 * Turn known tracking scripts into type="text/plain" until consent is given.
 	 */
 	public function filter_script_tag( $tag, $handle, $src ) {
 		$category = $this->category_for_src( $src );
 		if ( ! $category || 'necessary' === $category ) {
 			return $tag;
 		}
-		// Sostituisci src con data-ckit-src e type con text/plain.
+		// Replace src with data-ckit-src and type with text/plain.
 		$tag = preg_replace( '#\stype=(["\'])[^"\']*\1#i', '', $tag );
 		$tag = preg_replace( '#<script(\s)#i', '<script type="text/plain" data-ckit-category="' . esc_attr( $category ) . '"$1', $tag, 1 );
 		$tag = preg_replace( '#\ssrc=#i', ' data-ckit-src=', $tag );
@@ -112,7 +112,7 @@ class CKIT_Blocker {
 				return ! empty( $v['category'] ) ? $v['category'] : 'marketing';
 			}
 		}
-		// Match per host generico.
+		// Generic host match.
 		foreach ( $this->vendors as $v ) {
 			if ( empty( $v['host'] ) ) {
 				continue;
@@ -125,7 +125,7 @@ class CKIT_Blocker {
 	}
 
 	/**
-	 * Sostituisci iframe di tracker noti con placeholder click-to-load.
+	 * Replace iframes of known trackers with click-to-load placeholders.
 	 */
 	public function filter_content_iframes( $content ) {
 		if ( ! CKIT_Core::settings( 'block_iframes', 1 ) ) {
@@ -139,17 +139,17 @@ class CKIT_Blocker {
 	}
 
 	private function replace_iframe( $m ) {
-		$attrs1 = $m[1];
-		$src    = $m[3];
-		$attrs2 = $m[4];
-		$inner  = isset( $m[5] ) ? $m[5] : '';
+		$src = $m[3];
 
 		$category = $this->category_for_src( $src );
 		if ( ! $category || 'necessary' === $category ) {
 			return $m[0];
 		}
 
-		// Sostituisci src con data-ckit-src.
+		$categories = CKIT_Core::categories();
+		$cat_label  = isset( $categories[ $category ]['name'] ) ? $categories[ $category ]['name'] : $category;
+
+		// Keep the original src in data-ckit-iframe-src; the iframe is created only after consent.
 		$new = sprintf(
 			'<div class="ckit-iframe-placeholder" data-ckit-category="%1$s" data-ckit-iframe-src="%2$s">'
 				. '<div class="ckit-iframe-placeholder__inner">'
@@ -161,10 +161,14 @@ class CKIT_Blocker {
 			. '</div>',
 			esc_attr( $category ),
 			esc_url( $src ),
-			esc_html__( 'Contenuto bloccato', 'cookie-kit' ),
-			sprintf( esc_html__( 'Per visualizzare questo contenuto è necessario accettare i cookie della categoria %s.', 'cookie-kit' ), '<strong>' . esc_html( $category ) . '</strong>' ),
-			esc_html__( 'Carica una sola volta', 'cookie-kit' ),
-			esc_html__( 'Gestisci preferenze', 'cookie-kit' )
+			esc_html__( 'Content blocked', 'cookie-kit' ),
+			sprintf(
+				/* translators: %s: cookie category name. */
+				esc_html__( 'To view this content you need to accept cookies in the %s category.', 'cookie-kit' ),
+				'<strong>' . esc_html( $cat_label ) . '</strong>'
+			),
+			esc_html__( 'Load once', 'cookie-kit' ),
+			esc_html__( 'Manage preferences', 'cookie-kit' )
 		);
 		return $new;
 	}

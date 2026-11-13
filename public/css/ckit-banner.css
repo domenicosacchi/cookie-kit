@@ -1,6 +1,6 @@
 /*!
  * CookieKit — Banner CSS
- * Conforme alle linee guida Garante 231/2021 (pari dignità grafica Accetta/Rifiuta/Personalizza).
+ * Accept / Reject / Customize buttons share the same visual weight.
  */
 :root{
 	--ckit-primary:#0a3d62;
@@ -41,7 +41,7 @@
 .ckit-banner--bar.ckit-banner--bottom{bottom:0;border-bottom:none}
 .ckit-banner--bar.ckit-banner--top{top:0;border-top:none;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 
-/* Layout flex orizzontale Cookiebot-style: [logo | linea verticale | contenuto | actions] */
+/* Horizontal flex layout: [logo | vertical separator | content | actions] */
 .ckit-banner__inner{
 	max-width:1280px;margin:0 auto;
 	display:flex;flex-direction:column;gap:18px;
@@ -72,7 +72,7 @@
 	.ckit-banner__actions .ckit-btn{width:100%;min-width:0}
 }
 
-/* X di chiusura: posizione assoluta in alto a destra del banner. */
+/* Close (X): absolutely positioned at the top right of the banner. */
 .ckit-banner .ckit-btn--close{
 	position:absolute;top:10px;right:10px;
 	min-width:0;width:30px;height:30px;border-radius:50%;
@@ -106,9 +106,9 @@
 .ckit-btn--reject{background:var(--ckit-reject);color:#fff}
 .ckit-btn--customize{background:transparent;color:var(--ckit-primary);border-color:var(--ckit-primary)}
 .ckit-btn--save{background:var(--ckit-accept);color:#fff}
-/* (regola .ckit-btn--close ora ridefinita nella sezione layout bar — vedi sotto) */
+/* (.ckit-btn--close is refined in the bar layout section below) */
 
-/* Modale preferenze */
+/* Preferences modal */
 .ckit-modal-overlay{
 	position:fixed;inset:0;background:rgba(0,0,0,.5);
 	display:flex;align-items:center;justify-content:center;
@@ -131,7 +131,7 @@
 .ckit-modal__cat-head label{font-weight:600;color:var(--ckit-primary)}
 .ckit-modal__cat-desc{margin:6px 0 0;color:var(--ckit-text-secondary);font-size:13px}
 
-/* Lista cookie per categoria — accordion stile Cookie Script / iubenda */
+/* Cookie list per category (accordion) */
 .ckit-modal__cat-cookies{margin-top:10px;border-top:1px dashed #d4d8dd;padding-top:8px}
 .ckit-modal__cat-cookies-toggle{cursor:pointer;font-size:13px;color:var(--ckit-primary);font-weight:500;padding:4px 0;list-style:none;user-select:none;display:inline-block}
 .ckit-modal__cat-cookies-toggle::-webkit-details-marker{display:none}
@@ -182,7 +182,7 @@
 .ckit-iframe-placeholder__btn{background:var(--ckit-accept);color:#fff;border:none}
 .ckit-iframe-placeholder__manage{background:transparent;color:var(--ckit-primary);border:1px solid var(--ckit-primary)}
 
-/* Tema scuro */
+/* Dark theme */
 .ckit-theme--dark{
 	--ckit-bg:#1f2937;
 	--ckit-text:#e5e7eb;

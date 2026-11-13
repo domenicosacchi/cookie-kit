@@ -1,7 +1,7 @@
 <?php
 /**
- * Admin — Pagina di amministrazione del plugin CookieKit.
- * Tab: Impostazioni · Categorie · Vendor · Scanner · Log consensi · Aspetto.
+ * Admin — CookieKit administration page.
+ * Tabs: Settings · Categories · Vendors · Scanner · Consent log · Texts.
  *
  * @package CookieKit
  */
@@ -48,7 +48,7 @@ class CKIT_Admin {
 			array(),
 			CKIT_VERSION
 		);
-		// Media uploader per upload logo.
+		// Media uploader for the logo.
 		wp_enqueue_media();
 	}
 
@@ -135,14 +135,14 @@ class CKIT_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$tab  = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings'; // phpcs:ignore WordPress.Security.NonceVerification
+		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'settings'; // phpcs:ignore WordPress.Security.NonceVerification
 		$tabs = array(
-			'settings'   => __( 'Impostazioni', 'cookie-kit' ),
-			'categories' => __( 'Categorie', 'cookie-kit' ),
+			'settings'   => __( 'Settings', 'cookie-kit' ),
+			'categories' => __( 'Categories', 'cookie-kit' ),
 			'vendors'    => __( 'Vendor', 'cookie-kit' ),
 			'scanner'    => __( 'Scanner', 'cookie-kit' ),
-			'log'        => __( 'Log consensi', 'cookie-kit' ),
-			'texts'      => __( 'Testi e aspetto', 'cookie-kit' ),
+			'log'        => __( 'Consent log', 'cookie-kit' ),
+			'texts'      => __( 'Texts', 'cookie-kit' ),
 		);
 		?>
 		<div class="wrap ckit-admin">
@@ -189,30 +189,30 @@ class CKIT_Admin {
 			<?php settings_fields( 'ckit_settings_group' ); ?>
 			<table class="form-table">
 				<tr>
-					<th><?php esc_html_e( 'Plugin attivo', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Plugin enabled', 'cookie-kit' ); ?></th>
 					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[enabled]" value="1" <?php checked( (bool) CKIT_Core::settings( 'enabled', 1 ) ); ?>>
-						<?php esc_html_e( 'Mostra il banner ai visitatori', 'cookie-kit' ); ?></label></td>
+						<?php esc_html_e( 'Show the banner to visitors', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Auto-blocco script', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Script auto-blocking', 'cookie-kit' ); ?></th>
 					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[auto_block]" value="1" <?php checked( (bool) CKIT_Core::settings( 'auto_block', 1 ) ); ?>>
-						<?php esc_html_e( 'Blocca script di terze parti finché non c\'è consenso', 'cookie-kit' ); ?></label></td>
+						<?php esc_html_e( 'Block third-party scripts until consent is given', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Blocco iframe', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Iframe blocking', 'cookie-kit' ); ?></th>
 					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[block_iframes]" value="1" <?php checked( (bool) CKIT_Core::settings( 'block_iframes', 1 ) ); ?>>
-						<?php esc_html_e( 'Sostituisci YouTube/Vimeo/Maps con placeholder click-to-load', 'cookie-kit' ); ?></label></td>
+						<?php esc_html_e( 'Replace YouTube/Vimeo/Maps embeds with click-to-load placeholders', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Google Consent Mode v2', 'cookie-kit' ); ?></th>
 					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[consent_mode_v2]" value="1" <?php checked( (bool) CKIT_Core::settings( 'consent_mode_v2', 1 ) ); ?>>
-						<?php esc_html_e( 'Inietta segnali consent default=denied prima di Analytics/GTM', 'cookie-kit' ); ?></label></td>
+						<?php esc_html_e( 'Print consent default=denied signals before Analytics/GTM', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Pulsante footer', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Footer button', 'cookie-kit' ); ?></th>
 					<td>
 						<label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_floating_button]" value="1" <?php checked( (bool) CKIT_Core::settings( 'show_floating_button', 1 ) ); ?>>
-							<?php esc_html_e( 'Mostra icona persistente "Gestisci cookie"', 'cookie-kit' ); ?></label><br>
+							<?php esc_html_e( 'Show the persistent "Manage cookies" icon', 'cookie-kit' ); ?></label><br>
 						<select name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[floating_position]">
 							<option value="bottom-left" <?php selected( $opts['floating_position'] ?? '', 'bottom-left' ); ?>>bottom-left</option>
 							<option value="bottom-right" <?php selected( $opts['floating_position'] ?? '', 'bottom-right' ); ?>>bottom-right</option>
@@ -220,46 +220,46 @@ class CKIT_Admin {
 					</td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Re-prompt (giorni)', 'cookie-kit' ); ?></th>
-					<td><input type="number" min="30" max="365" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[reprompt_days]" value="<?php echo esc_attr( $opts['reprompt_days'] ?? 180 ); ?>"> <span class="description"><?php esc_html_e( 'Dopo quanti giorni ripresentare il banner. Default 180 (linee guida Garante)', 'cookie-kit' ); ?></span></td>
+					<th><?php esc_html_e( 'Re-prompt (days)', 'cookie-kit' ); ?></th>
+					<td><input type="number" min="30" max="365" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[reprompt_days]" value="<?php echo esc_attr( $opts['reprompt_days'] ?? 180 ); ?>"> <span class="description"><?php esc_html_e( 'After how many days the banner is shown again. Default 180 (the Garante Privacy guidelines indicate at least 6 months).', 'cookie-kit' ); ?></span></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Retention log (giorni)', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Log retention (days)', 'cookie-kit' ); ?></th>
 					<td><input type="number" min="30" max="3650" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[log_retention_days]" value="<?php echo esc_attr( $opts['log_retention_days'] ?? 1825 ); ?>"></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Versione policy corrente', 'cookie-kit' ); ?></th>
-					<td><input type="text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[policy_version]" value="<?php echo esc_attr( $opts['policy_version'] ?? '1.0' ); ?>"> <span class="description"><?php esc_html_e( 'Cambiare per forzare la ripresentazione del banner ai vecchi consensi', 'cookie-kit' ); ?></span></td>
+					<th><?php esc_html_e( 'Current policy version', 'cookie-kit' ); ?></th>
+					<td><input type="text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[policy_version]" value="<?php echo esc_attr( $opts['policy_version'] ?? '1.0' ); ?>"> <span class="description"><?php esc_html_e( 'Change it to show the banner again to visitors who consented under an older version', 'cookie-kit' ); ?></span></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'URL Informativa Privacy', 'cookie-kit' ); ?></th>
-					<td><input type="text" class="large-text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[privacy_policy_url]" value="<?php echo esc_attr( $opts['privacy_policy_url'] ?? '/informativa-privacy/' ); ?>"></td>
+					<th><?php esc_html_e( 'Privacy Policy URL', 'cookie-kit' ); ?></th>
+					<td><input type="text" class="large-text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[privacy_policy_url]" value="<?php echo esc_attr( $opts['privacy_policy_url'] ?? '' ); ?>" placeholder="<?php echo esc_attr( CKIT_Core::default_privacy_policy_url() ); ?>"> <p class="description"><?php esc_html_e( 'Empty = default path shown as placeholder.', 'cookie-kit' ); ?></p></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'URL Cookie Policy', 'cookie-kit' ); ?></th>
-					<td><input type="text" class="large-text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[cookie_policy_url]" value="<?php echo esc_attr( $opts['cookie_policy_url'] ?? '/cookie-policy/' ); ?>"></td>
+					<th><?php esc_html_e( 'Cookie Policy URL', 'cookie-kit' ); ?></th>
+					<td><input type="text" class="large-text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[cookie_policy_url]" value="<?php echo esc_attr( $opts['cookie_policy_url'] ?? '' ); ?>" placeholder="<?php echo esc_attr( CKIT_Core::default_cookie_policy_url() ); ?>"> <p class="description"><?php esc_html_e( 'Empty = default path shown as placeholder.', 'cookie-kit' ); ?></p></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Posizione banner', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Banner position', 'cookie-kit' ); ?></th>
 					<td>
 						<select name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[banner_position]">
 							<option value="bottom" <?php selected( $opts['banner_position'] ?? '', 'bottom' ); ?>>bottom</option>
 							<option value="top" <?php selected( $opts['banner_position'] ?? '', 'top' ); ?>>top</option>
-							<option value="center" <?php selected( $opts['banner_position'] ?? '', 'center' ); ?>>center (modale)</option>
+							<option value="center" <?php selected( $opts['banner_position'] ?? '', 'center' ); ?>>center (<?php esc_html_e( 'modal', 'cookie-kit' ); ?>)</option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Layout banner', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Banner layout', 'cookie-kit' ); ?></th>
 					<td>
 						<select name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[banner_layout]">
-							<option value="bar" <?php selected( $opts['banner_layout'] ?? '', 'bar' ); ?>><?php esc_html_e( 'Bar — striscia a tutta larghezza (Cookiebot-style)', 'cookie-kit' ); ?></option>
-							<option value="box" <?php selected( $opts['banner_layout'] ?? '', 'box' ); ?>><?php esc_html_e( 'Box — riquadro centrato', 'cookie-kit' ); ?></option>
+							<option value="bar" <?php selected( $opts['banner_layout'] ?? '', 'bar' ); ?>><?php esc_html_e( 'Bar — full-width strip', 'cookie-kit' ); ?></option>
+							<option value="box" <?php selected( $opts['banner_layout'] ?? '', 'box' ); ?>><?php esc_html_e( 'Box — centered box', 'cookie-kit' ); ?></option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Tema', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Theme', 'cookie-kit' ); ?></th>
 					<td>
 						<select name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[theme]">
 							<option value="light" <?php selected( $opts['theme'] ?? '', 'light' ); ?>>light</option>
@@ -268,39 +268,39 @@ class CKIT_Admin {
 					</td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Colore primario', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Primary color', 'cookie-kit' ); ?></th>
 					<td><input type="color" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[primary_color]" value="<?php echo esc_attr( $opts['primary_color'] ?? '#0a3d62' ); ?>"></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Colore "Accetta"', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( '"Accept" color', 'cookie-kit' ); ?></th>
 					<td><input type="color" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[accept_color]" value="<?php echo esc_attr( $opts['accept_color'] ?? '#0a3d62' ); ?>"></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Colore "Rifiuta"', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( '"Reject" color', 'cookie-kit' ); ?></th>
 					<td><input type="color" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[reject_color]" value="<?php echo esc_attr( $opts['reject_color'] ?? '#6c757d' ); ?>"></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Mostra logo nel banner', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Show logo in the banner', 'cookie-kit' ); ?></th>
 					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_logo]" value="1" <?php checked( (bool) CKIT_Core::settings( 'show_logo', 0 ) ); ?>>
-						<?php esc_html_e( 'Visualizza il logo del sito sopra il titolo del banner e del modale di personalizzazione', 'cookie-kit' ); ?></label></td>
+						<?php esc_html_e( 'Display the site logo above the banner title and in the preferences modal', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'URL logo', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Logo URL', 'cookie-kit' ); ?></th>
 					<td>
 						<input type="text" id="ckit-logo-url" class="large-text" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[logo_url]" value="<?php echo esc_attr( $opts['logo_url'] ?? '' ); ?>" placeholder="https://www.example.com/wp-content/uploads/.../logo.png">
 						<p>
-							<button type="button" class="button" id="ckit-upload-logo">📁 <?php esc_html_e( 'Carica / scegli dalla Libreria Media', 'cookie-kit' ); ?></button>
-							<button type="button" class="button" id="ckit-remove-logo"><?php esc_html_e( 'Rimuovi', 'cookie-kit' ); ?></button>
+							<button type="button" class="button" id="ckit-upload-logo">📁 <?php esc_html_e( 'Upload / choose from the Media Library', 'cookie-kit' ); ?></button>
+							<button type="button" class="button" id="ckit-remove-logo"><?php esc_html_e( 'Remove', 'cookie-kit' ); ?></button>
 						</p>
-						<p class="description"><?php esc_html_e( 'Consigliato: PNG/SVG con sfondo trasparente, altezza ~80-120px. Formato landscape.', 'cookie-kit' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Recommended: PNG/SVG with a transparent background, about 80-120px high, landscape format.', 'cookie-kit' ); ?></p>
 						<div id="ckit-logo-preview" style="margin-top:10px;<?php echo empty( $opts['logo_url'] ) ? 'display:none' : ''; ?>">
 							<img src="<?php echo esc_url( $opts['logo_url'] ?? '' ); ?>" alt="" style="max-height:60px;max-width:300px;border:1px solid #ddd;padding:8px;background:#fff;border-radius:4px">
 						</div>
 					</td>
 				</tr>
 				<tr>
-					<th><?php esc_html_e( 'Altezza max logo (px)', 'cookie-kit' ); ?></th>
-					<td><input type="number" min="20" max="120" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[logo_max_height]" value="<?php echo esc_attr( $opts['logo_max_height'] ?? 56 ); ?>"> <span class="description"><?php esc_html_e( 'Altezza massima del logo nel banner. Default 56px.', 'cookie-kit' ); ?></span></td>
+					<th><?php esc_html_e( 'Max logo height (px)', 'cookie-kit' ); ?></th>
+					<td><input type="number" min="20" max="120" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[logo_max_height]" value="<?php echo esc_attr( $opts['logo_max_height'] ?? 56 ); ?>"> <span class="description"><?php esc_html_e( 'Maximum logo height in the banner. Default 56px.', 'cookie-kit' ); ?></span></td>
 				</tr>
 			</table>
 			<?php submit_button(); ?>
@@ -316,8 +316,8 @@ class CKIT_Admin {
 			btnUpload.addEventListener('click', function(e){
 				e.preventDefault();
 				var frame = wp.media({
-					title: '<?php echo esc_js( __( 'Scegli logo per il banner cookie', 'cookie-kit' ) ); ?>',
-					button: { text: '<?php echo esc_js( __( 'Usa questo logo', 'cookie-kit' ) ); ?>' },
+					title: '<?php echo esc_js( __( 'Choose a logo for the cookie banner', 'cookie-kit' ) ); ?>',
+					button: { text: '<?php echo esc_js( __( 'Use this logo', 'cookie-kit' ) ); ?>' },
 					library: { type: 'image' },
 					multiple: false
 				});
@@ -343,32 +343,35 @@ class CKIT_Admin {
 
 	private function view_categories() {
 		$categories = get_option( 'ckit_categories', array() );
+		$categories = is_array( $categories ) ? $categories : array();
+		$defaults   = CKIT_Core::default_categories();
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<?php wp_nonce_field( 'ckit_save_categories' ); ?>
 			<input type="hidden" name="action" value="ckit_save_categories">
-			<p><?php esc_html_e( 'Le categorie definiscono come l\'utente può scegliere quali cookie accettare. La categoria "necessary" è sempre attiva e non può essere disabilitata.', 'cookie-kit' ); ?></p>
+			<p><?php esc_html_e( 'Categories define how users can choose which cookies to accept. The "necessary" category is always active and cannot be disabled.', 'cookie-kit' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Leave a field empty to use the default text (shown as placeholder), translated into the site language.', 'cookie-kit' ); ?></p>
 			<table class="widefat striped">
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'ID', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Nome', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Descrizione', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Obbligatoria', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Name', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Description', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Required', 'cookie-kit' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php foreach ( $categories as $id => $cat ) : ?>
 						<tr>
 							<td><code><?php echo esc_html( $id ); ?></code></td>
-							<td><input type="text" name="cat[<?php echo esc_attr( $id ); ?>][name]" value="<?php echo esc_attr( $cat['name'] ); ?>"></td>
-							<td><textarea name="cat[<?php echo esc_attr( $id ); ?>][description]" rows="2" cols="60"><?php echo esc_textarea( $cat['description'] ); ?></textarea></td>
+							<td><input type="text" name="cat[<?php echo esc_attr( $id ); ?>][name]" value="<?php echo esc_attr( $cat['name'] ?? '' ); ?>" placeholder="<?php echo esc_attr( $defaults[ $id ]['name'] ?? '' ); ?>"></td>
+							<td><textarea name="cat[<?php echo esc_attr( $id ); ?>][description]" rows="2" cols="60" placeholder="<?php echo esc_attr( $defaults[ $id ]['description'] ?? '' ); ?>"><?php echo esc_textarea( $cat['description'] ?? '' ); ?></textarea></td>
 							<td><input type="checkbox" name="cat[<?php echo esc_attr( $id ); ?>][required]" value="1" <?php checked( ! empty( $cat['required'] ) ); ?> <?php disabled( 'necessary' === $id ); ?>></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-			<?php submit_button( __( 'Salva categorie', 'cookie-kit' ) ); ?>
+			<?php submit_button( __( 'Save categories', 'cookie-kit' ) ); ?>
 		</form>
 		<?php
 	}
@@ -379,12 +382,12 @@ class CKIT_Admin {
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<?php wp_nonce_field( 'ckit_save_vendors' ); ?>
 			<input type="hidden" name="action" value="ckit_save_vendors">
-			<p><?php esc_html_e( 'Vendor di terze parti. La regex "pattern" intercetta gli script da bloccare; "host" è il dominio del fornitore; "cookies" è la lista dei nomi cookie installati (uno per riga, supporta wildcard *).', 'cookie-kit' ); ?></p>
+			<p><?php esc_html_e( 'Third-party vendors. The "pattern" regex matches the scripts to block; "host" is the vendor\'s domain; "cookies" is the comma-separated list of cookie names the vendor sets (wildcard * supported).', 'cookie-kit' ); ?></p>
 			<table class="widefat striped ckit-vendors-table">
 				<thead>
 					<tr>
-						<th><?php esc_html_e( 'Nome', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Categoria', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Name', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Category', 'cookie-kit' ); ?></th>
 						<th><?php esc_html_e( 'Host', 'cookie-kit' ); ?></th>
 						<th><?php esc_html_e( 'Pattern (regex)', 'cookie-kit' ); ?></th>
 						<th><?php esc_html_e( 'Cookie (CSV)', 'cookie-kit' ); ?></th>
@@ -397,7 +400,7 @@ class CKIT_Admin {
 							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][name]" value="<?php echo esc_attr( $v['name'] ?? '' ); ?>"></td>
 							<td>
 								<select name="vendor[<?php echo absint( $i ); ?>][category]">
-									<?php foreach ( get_option( 'ckit_categories', array() ) as $cid => $c ) : ?>
+									<?php foreach ( CKIT_Core::categories() as $cid => $c ) : ?>
 										<option value="<?php echo esc_attr( $cid ); ?>" <?php selected( $v['category'] ?? '', $cid ); ?>><?php echo esc_html( $c['name'] ); ?></option>
 									<?php endforeach; ?>
 								</select>
@@ -405,13 +408,13 @@ class CKIT_Admin {
 							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][host]" value="<?php echo esc_attr( $v['host'] ?? '' ); ?>"></td>
 							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][pattern]" value="<?php echo esc_attr( $v['pattern'] ?? '' ); ?>"></td>
 							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][cookies]" value="<?php echo esc_attr( $v['cookies'] ?? '' ); ?>"></td>
-							<td><button type="button" class="button-link ckit-remove-vendor"><?php esc_html_e( 'Rimuovi', 'cookie-kit' ); ?></button></td>
+							<td><button type="button" class="button-link ckit-remove-vendor"><?php esc_html_e( 'Remove', 'cookie-kit' ); ?></button></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-			<p><button type="button" class="button" id="ckit-add-vendor"><?php esc_html_e( 'Aggiungi vendor', 'cookie-kit' ); ?></button></p>
-			<?php submit_button( __( 'Salva vendor', 'cookie-kit' ) ); ?>
+			<p><button type="button" class="button" id="ckit-add-vendor"><?php esc_html_e( 'Add vendor', 'cookie-kit' ); ?></button></p>
+			<?php submit_button( __( 'Save vendors', 'cookie-kit' ) ); ?>
 		</form>
 		<script>
 		(function(){
@@ -420,11 +423,11 @@ class CKIT_Admin {
 				var i = tbody.children.length;
 				var row = document.createElement('tr');
 				row.innerHTML = '<td><input type="text" name="vendor['+i+'][name]"></td>'
-					+ '<td><select name="vendor['+i+'][category]"><?php foreach ( get_option( 'ckit_categories', array() ) as $cid => $c ) : ?><option value="<?php echo esc_attr( $cid ); ?>"><?php echo esc_js( $c['name'] ); ?></option><?php endforeach; ?></select></td>'
+					+ '<td><select name="vendor['+i+'][category]"><?php foreach ( CKIT_Core::categories() as $cid => $c ) : ?><option value="<?php echo esc_attr( $cid ); ?>"><?php echo esc_js( $c['name'] ); ?></option><?php endforeach; ?></select></td>'
 					+ '<td><input type="text" name="vendor['+i+'][host]"></td>'
 					+ '<td><input type="text" name="vendor['+i+'][pattern]"></td>'
 					+ '<td><input type="text" name="vendor['+i+'][cookies]"></td>'
-					+ '<td><button type="button" class="button-link ckit-remove-vendor">Rimuovi</button></td>';
+					+ '<td><button type="button" class="button-link ckit-remove-vendor"><?php echo esc_js( __( 'Remove', 'cookie-kit' ) ); ?></button></td>';
 				tbody.appendChild(row);
 			});
 			tbody.addEventListener('click', function(e){
@@ -442,27 +445,27 @@ class CKIT_Admin {
 		$rows      = $scanner->get_all();
 		$home_snap = add_query_arg( 'ckit-snapshot', '1', home_url( '/' ) );
 		?>
-		<h2 style="margin-top:0;color:#0a3d62"><?php esc_html_e( '★ Scansione browser (consigliata)', 'cookie-kit' ); ?></h2>
-		<p><?php esc_html_e( 'Apre la home del sito in una nuova scheda con uno script che simula l\'accettazione dei cookie e cattura tutti i cookie effettivamente installati nel browser, incluso ciò che gli script JavaScript di Google Analytics, GTM, Meta Pixel, ecc. installano lato client. È la scansione più accurata.', 'cookie-kit' ); ?></p>
+		<h2 style="margin-top:0;color:#0a3d62"><?php esc_html_e( '★ Browser scan (recommended)', 'cookie-kit' ); ?></h2>
+		<p><?php esc_html_e( 'Opens the site home page in a new tab with a script that simulates accepting cookies and captures every cookie actually set in the browser, including those set client-side by JavaScript such as Google Analytics, GTM, Meta Pixel, etc. This is the most accurate scan.', 'cookie-kit' ); ?></p>
 		<p>
-			<a class="button button-primary button-hero" href="<?php echo esc_url( $home_snap ); ?>" target="_blank" rel="noopener">▶ <?php esc_html_e( 'Avvia scansione browser', 'cookie-kit' ); ?></a>
+			<a class="button button-primary button-hero" href="<?php echo esc_url( $home_snap ); ?>" target="_blank" rel="noopener">▶ <?php esc_html_e( 'Start browser scan', 'cookie-kit' ); ?></a>
 		</p>
 		<p class="description">
-			<?php esc_html_e( 'Quando si apre la nuova scheda, lascia che lo script lavori ~8 secondi (vedrai un overlay in alto a destra). Al termine torna qui e ricarica la pagina per vedere i cookie aggiornati nella tabella.', 'cookie-kit' ); ?>
+			<?php esc_html_e( 'When the new tab opens, let the script work: it waits about 5 seconds on each page (home + up to 2 pages + 2 posts) and shows an overlay at the top right. When it is done, come back here and reload the page to see the updated cookies in the table.', 'cookie-kit' ); ?>
 		</p>
 
 		<hr style="margin:24px 0">
-		<h2><?php esc_html_e( 'Scansione passiva server-side', 'cookie-kit' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Richieste HTTP server-side per identificare cookie installati prima del caricamento JS (Cloudflare, sessione PHP, framework). Non sostituisce la scansione browser, è complementare.', 'cookie-kit' ); ?></p>
+		<h2><?php esc_html_e( 'Passive server-side scan', 'cookie-kit' ); ?></h2>
+		<p class="description"><?php esc_html_e( 'Server-side HTTP requests to identify cookies set before JavaScript runs (Cloudflare, PHP session, frameworks). It does not replace the browser scan; it complements it.', 'cookie-kit' ); ?></p>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
 			<?php wp_nonce_field( 'ckit_run_scanner' ); ?>
 			<input type="hidden" name="action" value="ckit_run_scanner">
-			<?php submit_button( __( 'Esegui scansione passiva', 'cookie-kit' ), 'secondary', 'submit', false ); ?>
+			<?php submit_button( __( 'Run passive scan', 'cookie-kit' ), 'secondary', 'submit', false ); ?>
 		</form>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;margin-left:8px">
 			<?php wp_nonce_field( 'ckit_clear_scanner' ); ?>
 			<input type="hidden" name="action" value="ckit_clear_scanner">
-			<?php submit_button( __( 'Svuota tutti i risultati', 'cookie-kit' ), 'delete', 'submit', false ); ?>
+			<?php submit_button( __( 'Clear all results', 'cookie-kit' ), 'delete', 'submit', false ); ?>
 		</form>
 		<hr style="margin:24px 0">
 		<?php if ( $rows ) : ?>
@@ -470,12 +473,12 @@ class CKIT_Admin {
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Cookie', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Dominio', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Categoria', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Parte', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Domain', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Category', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Party', 'cookie-kit' ); ?></th>
 						<th><?php esc_html_e( 'Vendor', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Durata', 'cookie-kit' ); ?></th>
-						<th><?php esc_html_e( 'Trovato in', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Duration', 'cookie-kit' ); ?></th>
+						<th><?php esc_html_e( 'Found on', 'cookie-kit' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -493,7 +496,7 @@ class CKIT_Admin {
 				</tbody>
 			</table>
 		<?php else : ?>
-			<p><em><?php esc_html_e( 'Nessuna scansione ancora eseguita.', 'cookie-kit' ); ?></em></p>
+			<p><em><?php esc_html_e( 'No scan run yet.', 'cookie-kit' ); ?></em></p>
 		<?php endif; ?>
 		<?php
 	}
@@ -507,25 +510,25 @@ class CKIT_Admin {
 		$custom = $log->count( array( 'action' => 'customize' ) );
 		?>
 		<div class="ckit-stats">
-			<div><strong><?php echo esc_html( number_format_i18n( $total ) ); ?></strong> <?php esc_html_e( 'consensi totali', 'cookie-kit' ); ?></div>
+			<div><strong><?php echo esc_html( number_format_i18n( $total ) ); ?></strong> <?php esc_html_e( 'total consents', 'cookie-kit' ); ?></div>
 			<div><strong><?php echo esc_html( number_format_i18n( $accept ) ); ?></strong> <?php esc_html_e( 'accept all', 'cookie-kit' ); ?></div>
 			<div><strong><?php echo esc_html( number_format_i18n( $reject ) ); ?></strong> <?php esc_html_e( 'reject all', 'cookie-kit' ); ?></div>
-			<div><strong><?php echo esc_html( number_format_i18n( $custom ) ); ?></strong> <?php esc_html_e( 'personalizzati', 'cookie-kit' ); ?></div>
+			<div><strong><?php echo esc_html( number_format_i18n( $custom ) ); ?></strong> <?php esc_html_e( 'customized', 'cookie-kit' ); ?></div>
 		</div>
 		<p>
-			<a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ckit_export_log&format=csv' ), 'ckit_export_log' ) ); ?>"><?php esc_html_e( 'Esporta CSV', 'cookie-kit' ); ?></a>
-			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ckit_export_log&format=json' ), 'ckit_export_log' ) ); ?>"><?php esc_html_e( 'Esporta JSON', 'cookie-kit' ); ?></a>
+			<a class="button button-primary" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ckit_export_log&format=csv' ), 'ckit_export_log' ) ); ?>"><?php esc_html_e( 'Export CSV', 'cookie-kit' ); ?></a>
+			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ckit_export_log&format=json' ), 'ckit_export_log' ) ); ?>"><?php esc_html_e( 'Export JSON', 'cookie-kit' ); ?></a>
 		</p>
 		<table class="widefat striped">
 			<thead>
 				<tr>
 					<th>ID</th>
-					<th><?php esc_html_e( 'Data/ora (UTC)', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Date/time (UTC)', 'cookie-kit' ); ?></th>
 					<th>UUID</th>
-					<th><?php esc_html_e( 'Azione', 'cookie-kit' ); ?></th>
-					<th><?php esc_html_e( 'Categorie', 'cookie-kit' ); ?></th>
-					<th><?php esc_html_e( 'Versione policy', 'cookie-kit' ); ?></th>
-					<th><?php esc_html_e( 'Pagina', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Action', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Categories', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Policy version', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Page', 'cookie-kit' ); ?></th>
 					<th>Lang</th>
 				</tr>
 			</thead>
@@ -548,26 +551,29 @@ class CKIT_Admin {
 	}
 
 	private function view_texts() {
-		$texts = get_option( 'ckit_texts', array() );
+		$texts    = get_option( 'ckit_texts', array() );
+		$texts    = is_array( $texts ) ? $texts : array();
+		$defaults = CKIT_Core::default_texts();
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<?php wp_nonce_field( 'ckit_save_texts' ); ?>
 			<input type="hidden" name="action" value="ckit_save_texts">
+			<p class="description"><?php esc_html_e( 'Leave a field empty to use the default text (shown as placeholder), translated into the site language. In the messages you can add links with the syntax [link text](https://example.com/page/).', 'cookie-kit' ); ?></p>
 			<table class="form-table">
 				<?php
 				$labels = array(
-					'banner_title'      => __( 'Titolo banner', 'cookie-kit' ),
-					'banner_message'    => __( 'Messaggio banner', 'cookie-kit' ),
-					'btn_accept_all'    => __( 'Pulsante "Accetta tutti"', 'cookie-kit' ),
-					'btn_reject_all'    => __( 'Pulsante "Rifiuta tutti"', 'cookie-kit' ),
-					'btn_customize'     => __( 'Pulsante "Personalizza"', 'cookie-kit' ),
-					'btn_save'          => __( 'Pulsante "Salva preferenze"', 'cookie-kit' ),
-					'btn_close'         => __( 'Pulsante "Chiudi"', 'cookie-kit' ),
-					'modal_title'       => __( 'Titolo modale preferenze (vuoto = usa Titolo banner)', 'cookie-kit' ),
-					'modal_intro'       => __( 'Intro modale preferenze (vuoto = usa Messaggio banner)', 'cookie-kit' ),
-					'floating_button'   => __( 'Etichetta pulsante footer', 'cookie-kit' ),
-					'privacy_link_text' => __( 'Etichetta link Privacy', 'cookie-kit' ),
-					'cookies_link_text' => __( 'Etichetta link Cookie Policy', 'cookie-kit' ),
+					'banner_title'      => __( 'Banner title', 'cookie-kit' ),
+					'banner_message'    => __( 'Banner message', 'cookie-kit' ),
+					'btn_accept_all'    => __( '"Accept all" button', 'cookie-kit' ),
+					'btn_reject_all'    => __( '"Reject all" button', 'cookie-kit' ),
+					'btn_customize'     => __( '"Customize" button', 'cookie-kit' ),
+					'btn_save'          => __( '"Save preferences" button', 'cookie-kit' ),
+					'btn_close'         => __( '"Close" button', 'cookie-kit' ),
+					'modal_title'       => __( 'Preferences modal title (empty = use Banner title)', 'cookie-kit' ),
+					'modal_intro'       => __( 'Preferences modal intro (empty = use Banner message)', 'cookie-kit' ),
+					'floating_button'   => __( 'Footer button label', 'cookie-kit' ),
+					'privacy_link_text' => __( 'Privacy link label', 'cookie-kit' ),
+					'cookies_link_text' => __( 'Cookie Policy link label', 'cookie-kit' ),
 				);
 				foreach ( $labels as $k => $label ) :
 					$is_long = in_array( $k, array( 'banner_message', 'modal_intro' ), true );
@@ -576,25 +582,25 @@ class CKIT_Admin {
 						<th><?php echo esc_html( $label ); ?></th>
 						<td>
 							<?php if ( $is_long ) : ?>
-								<textarea name="texts[<?php echo esc_attr( $k ); ?>]" rows="4" cols="80"><?php echo esc_textarea( $texts[ $k ] ?? '' ); ?></textarea>
+								<textarea name="texts[<?php echo esc_attr( $k ); ?>]" rows="4" cols="80" placeholder="<?php echo esc_attr( $defaults[ $k ] ?? '' ); ?>"><?php echo esc_textarea( $texts[ $k ] ?? '' ); ?></textarea>
 							<?php else : ?>
-								<input type="text" class="large-text" name="texts[<?php echo esc_attr( $k ); ?>]" value="<?php echo esc_attr( $texts[ $k ] ?? '' ); ?>">
+								<input type="text" class="large-text" name="texts[<?php echo esc_attr( $k ); ?>]" value="<?php echo esc_attr( $texts[ $k ] ?? '' ); ?>" placeholder="<?php echo esc_attr( $defaults[ $k ] ?? '' ); ?>">
 							<?php endif; ?>
 						</td>
 					</tr>
 				<?php endforeach; ?>
 			</table>
-			<?php submit_button( __( 'Salva testi', 'cookie-kit' ) ); ?>
+			<?php submit_button( __( 'Save texts', 'cookie-kit' ) ); ?>
 		</form>
 		<?php
 	}
 
-	// ==================== Handler =========================.
+	// ==================== Handlers ====================
 
 	public function handle_scanner() {
 		check_admin_referer( 'ckit_run_scanner' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		$scanner = CKIT_Core::instance()->scanner;
 		$scanner->scan_urls( $scanner->default_urls() );
@@ -605,7 +611,7 @@ class CKIT_Admin {
 	public function handle_scanner_clear() {
 		check_admin_referer( 'ckit_clear_scanner' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		CKIT_Core::instance()->scanner->clear();
 		wp_safe_redirect( add_query_arg( 'tab', 'scanner', admin_url( 'admin.php?page=' . self::SLUG ) ) );
@@ -615,7 +621,7 @@ class CKIT_Admin {
 	public function handle_export_log() {
 		check_admin_referer( 'ckit_export_log' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		$format = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		$log    = CKIT_Core::instance()->log;
@@ -635,7 +641,7 @@ class CKIT_Admin {
 	public function handle_save_categories() {
 		check_admin_referer( 'ckit_save_categories' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		$cat_in = isset( $_POST['cat'] ) && is_array( $_POST['cat'] ) ? wp_unslash( $_POST['cat'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$out    = array();
@@ -650,7 +656,7 @@ class CKIT_Admin {
 				'required'    => ! empty( $row['required'] ) ? 1 : 0,
 			);
 		}
-		// Forza necessary required.
+		// "necessary" is always required.
 		if ( isset( $out['necessary'] ) ) {
 			$out['necessary']['required'] = 1;
 		}
@@ -662,7 +668,7 @@ class CKIT_Admin {
 	public function handle_save_vendors() {
 		check_admin_referer( 'ckit_save_vendors' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		$in  = isset( $_POST['vendor'] ) && is_array( $_POST['vendor'] ) ? wp_unslash( $_POST['vendor'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$out = array();
@@ -700,7 +706,7 @@ class CKIT_Admin {
 	public function handle_save_texts() {
 		check_admin_referer( 'ckit_save_texts' );
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'forbidden' );
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'cookie-kit' ), 403 );
 		}
 		$in  = isset( $_POST['texts'] ) && is_array( $_POST['texts'] ) ? wp_unslash( $_POST['texts'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$out = get_option( 'ckit_texts', array() );

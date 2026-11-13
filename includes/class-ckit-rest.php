@@ -1,10 +1,13 @@
 <?php
 /**
- * REST API — Endpoint per la registrazione del consenso lato JS.
+ * REST API — Endpoints used by the front-end scripts.
  *
- * POST /wp-json/cookiekit/v1/consent
+ * POST /wp-json/cookiekit/v1/consent   (public: records a consent choice in the log)
  *   body: { action, categories, page_url, language, consent_uuid }
- *   nonce header: X-WP-Nonce (wp_rest)
+ *   header: X-WP-Nonce (wp_rest), checked by WordPress only for logged-in users
+ *
+ * POST /wp-json/cookiekit/v1/snapshot  (manage_options: client-side cookie scanner)
+ *   body: { cookies: [ "name", ... ], page_url }
  *
  * @package CookieKit
  */
@@ -27,7 +30,7 @@ class CKIT_Rest {
 				array(
 					'methods'             => 'POST',
 					'callback'            => array( $this, 'log_consent' ),
-					'permission_callback' => '__return_true', // l'endpoint accetta consenso anche da utenti non loggati.
+					'permission_callback' => '__return_true', // Public on purpose: visitors are not logged in. Input is validated in log_consent().
 				),
 			)
 		);
@@ -47,13 +50,13 @@ class CKIT_Rest {
 	}
 
 	/**
-	 * Riceve uno snapshot client-side: lista cookie raccolti dal browser dell'admin loggato.
+	 * Receive a client-side snapshot: cookie names collected by the logged-in admin's browser.
 	 *
-	 * Body JSON:
-	 *  - cookies: array di stringhe nome=valore  (oppure array di {name, value})
-	 *  - page_url: URL della pagina visitata
+	 * JSON body:
+	 *  - cookies: array of cookie names (strings)
+	 *  - page_url: URL of the visited page (must belong to this site to be fetched for enrichment)
 	 *
-	 * Solo admin (manage_options).
+	 * Administrators only (manage_options).
 	 */
 	public function save_snapshot( WP_REST_Request $request ) {
 		$cookies = $request->get_param( 'cookies' );
@@ -75,13 +78,13 @@ class CKIT_Rest {
 			)
 		);
 
-		// Integra cookie HttpOnly (es. PHPSESSID): il browser li include nell'header Cookie
-		// della richiesta REST, così sono accessibili lato server in $_COOKIE.
-		// document.cookie lato JS non li vede, ma noi li uniamo qui.
+		// Merge HttpOnly cookies (e.g. PHPSESSID): the browser sends them in the Cookie header
+		// of this REST request, so they are available server-side in $_COOKIE even though
+		// document.cookie cannot see them.
 		$server_cookies = array();
 		if ( is_array( $_COOKIE ) ) {
 			foreach ( array_keys( $_COOKIE ) as $name ) {
-				// Filtra cookie tecnici WP loggato che si vedono solo lato admin (non sono installati per gli utenti pubblici).
+				// Skip WordPress login cookies, which only logged-in users have (not public visitors).
 				if ( preg_match( '/^(wordpress_(?:logged_in|sec)|wp-settings)/i', $name ) ) {
 					continue;
 				}
@@ -101,8 +104,8 @@ class CKIT_Rest {
 		$scanner = CKIT_Core::instance()->scanner;
 		$saved   = $scanner->save_snapshot( $all, $page );
 
-		// Vendor catalog enrichment: rileva vendor third-party nell'HTML della pagina
-		// (iframe YouTube, script GTM, embed Vimeo) e aggiunge i loro cookie noti come third-party.
+		// Vendor catalog enrichment: detect third-party vendors in the page HTML
+		// (YouTube iframes, GTM scripts, Vimeo embeds) and add their known cookies as third-party.
 		$enriched = $scanner->enrich_from_html( $page );
 
 		return new WP_REST_Response(

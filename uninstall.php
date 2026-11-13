@@ -1,7 +1,8 @@
 <?php
 /**
- * Uninstall script — eseguito quando il plugin viene eliminato (non solo disattivato).
- * Rimuove tabelle, opzioni e cookie residui.
+ * Uninstall script — runs when the plugin is deleted (not when it is only deactivated).
+ * Removes the plugin's tables, options and scheduled events.
+ * Cookies already stored in visitors' browsers cannot be removed server-side.
  *
  * @package CookieKit
  */

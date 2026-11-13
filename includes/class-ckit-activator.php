@@ -1,6 +1,6 @@
 <?php
 /**
- * Activator — Crea schema DB, popola opzioni di default, pianifica cron.
+ * Activator — Creates the DB schema, stores default options, schedules cron.
  *
  * @package CookieKit
  */
@@ -75,7 +75,7 @@ class CKIT_Activator {
 			$defaults = array(
 				'enabled'              => 1,
 				'banner_position'      => 'bottom',     // bottom | center | top.
-				'banner_layout'        => 'bar',         // bar (full-width Cookiebot-style) | box (riquadro centrato).
+				'banner_layout'        => 'bar',         // bar (full-width strip) | box (centered box).
 				'theme'                => 'light',       // light | dark.
 				'primary_color'        => '#0a3d62',
 				'accept_color'         => '#0a3d62',
@@ -87,9 +87,10 @@ class CKIT_Activator {
 				'consent_mode_v2'      => 1,
 				'auto_block'           => 1,
 				'reprompt_days'        => 180,
-				'log_retention_days'   => 1825, // 5 anni — buona prassi probatoria.
-				'privacy_policy_url'   => '/informativa-privacy/',
-				'cookie_policy_url'    => '/cookie-policy/',
+				'log_retention_days'   => 1825, // 5 years.
+				// Empty: the translated default path is used at runtime (see CKIT_Core::privacy_policy_url()).
+				'privacy_policy_url'   => '',
+				'cookie_policy_url'    => '',
 				'show_floating_button' => 1,
 				'floating_position'    => 'bottom-left', // bottom-left | bottom-right.
 				'block_iframes'        => 1,
@@ -99,28 +100,16 @@ class CKIT_Activator {
 		}
 
 		if ( false === get_option( 'ckit_categories' ) ) {
-			$categories = array(
-				'necessary'   => array(
-					'name'        => __( 'Necessari', 'cookie-kit' ),
-					'description' => __( 'Cookie tecnici strettamente necessari al funzionamento del sito. Sempre attivi.', 'cookie-kit' ),
-					'required'    => 1,
-				),
-				'preferences' => array(
-					'name'        => __( 'Preferenze', 'cookie-kit' ),
-					'description' => __( 'Cookie che memorizzano scelte come lingua o regione, migliorando l\'esperienza utente.', 'cookie-kit' ),
-					'required'    => 0,
-				),
-				'analytics'   => array(
-					'name'        => __( 'Analitici', 'cookie-kit' ),
-					'description' => __( 'Cookie utilizzati per raccogliere informazioni in forma aggregata sull\'uso del sito.', 'cookie-kit' ),
-					'required'    => 0,
-				),
-				'marketing'   => array(
-					'name'        => __( 'Marketing', 'cookie-kit' ),
-					'description' => __( 'Cookie utilizzati per fornire pubblicità più rilevanti e misurare l\'efficacia delle campagne.', 'cookie-kit' ),
-					'required'    => 0,
-				),
-			);
+			// Names and descriptions are left empty: CKIT_Core::categories() fills them with the
+			// translated defaults at runtime, so they follow the site language until edited.
+			$categories = array();
+			foreach ( array( 'necessary' => 1, 'preferences' => 0, 'analytics' => 0, 'marketing' => 0 ) as $id => $required ) {
+				$categories[ $id ] = array(
+					'name'        => '',
+					'description' => '',
+					'required'    => $required,
+				);
+			}
 			add_option( 'ckit_categories', $categories );
 		}
 
@@ -180,21 +169,9 @@ class CKIT_Activator {
 		}
 
 		if ( false === get_option( 'ckit_texts' ) ) {
-			$texts = array(
-				'banner_title'       => __( 'Rispettiamo la tua privacy', 'cookie-kit' ),
-				'banner_message'     => __( 'Utilizziamo cookie tecnici e, previo tuo consenso, cookie analitici e di terze parti per migliorare la tua esperienza di navigazione, analizzare il traffico del sito e fornire contenuti integrati. Condividiamo informazioni sull\'utilizzo del sito con i nostri partner di analisi e pubblicità che potrebbero combinarle con altre informazioni che hai fornito loro. Per maggiori informazioni leggi l\'[Informativa Privacy](/informativa-privacy/) e la [Cookie Policy](/cookie-policy/).', 'cookie-kit' ),
-				'btn_accept_all'     => __( 'Accetta tutti', 'cookie-kit' ),
-				'btn_reject_all'     => __( 'Rifiuta tutti', 'cookie-kit' ),
-				'btn_customize'      => __( 'Personalizza', 'cookie-kit' ),
-				'btn_save'           => __( 'Salva preferenze', 'cookie-kit' ),
-				'btn_close'          => __( 'Chiudi', 'cookie-kit' ),
-				'modal_title'        => '', // Vuoto: il modale eredita banner_title (stesso "Rispettiamo la tua privacy" del banner principale).
-				'modal_intro'        => '', // Vuoto: il modale eredita banner_message (stesso testo del banner principale, link inline inclusi).
-				'floating_button'    => __( 'Gestisci cookie', 'cookie-kit' ),
-				'privacy_link_text'  => __( 'Informativa Privacy', 'cookie-kit' ),
-				'cookies_link_text'  => __( 'Cookie Policy', 'cookie-kit' ),
-			);
-			add_option( 'ckit_texts', $texts );
+			// No stored texts: CKIT_Core::texts() uses the translated defaults until the admin
+			// saves custom texts. Installs created before 1.2.0 keep their stored texts.
+			add_option( 'ckit_texts', array() );
 		}
 	}
 }

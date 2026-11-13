@@ -1,7 +1,7 @@
 <?php
 /**
- * Banner — Output del banner front-end e del modale di personalizzazione.
- * Inietta variabili JS/CSS, gestisce shortcode [ckit_button].
+ * Banner — Front-end banner and preferences modal output.
+ * Injects JS/CSS configuration and handles the [ckit_button] shortcode.
  *
  * @package CookieKit
  */
@@ -38,42 +38,60 @@ class CKIT_Banner {
 		);
 
 		$config = array(
-			'cookieName'       => CKIT_CONSENT_COOKIE,
-			'repromptDays'     => absint( CKIT_Core::settings( 'reprompt_days', CKIT_REPROMPT_DAYS ) ),
-			'autoBlock'        => (bool) CKIT_Core::settings( 'auto_block', 1 ),
-			'consentModeV2'    => (bool) CKIT_Core::settings( 'consent_mode_v2', 1 ),
-			'policyVersion'    => CKIT_Core::settings( 'policy_version', '1.0' ),
-			'restUrl'          => esc_url_raw( rest_url( 'cookiekit/v1/consent' ) ),
-			'restNonce'        => wp_create_nonce( 'wp_rest' ),
-			'categories'       => CKIT_Core::categories(),
-			'vendors'          => CKIT_Core::vendors(),
+			'cookieName'        => CKIT_CONSENT_COOKIE,
+			'repromptDays'      => absint( CKIT_Core::settings( 'reprompt_days', CKIT_REPROMPT_DAYS ) ),
+			'autoBlock'         => (bool) CKIT_Core::settings( 'auto_block', 1 ),
+			'consentModeV2'     => (bool) CKIT_Core::settings( 'consent_mode_v2', 1 ),
+			'policyVersion'     => CKIT_Core::settings( 'policy_version', '1.0' ),
+			'restUrl'           => esc_url_raw( rest_url( 'cookiekit/v1/consent' ) ),
+			'restNonce'         => wp_create_nonce( 'wp_rest' ),
+			'categories'        => CKIT_Core::categories(),
+			'vendors'           => CKIT_Core::vendors(),
 			'cookiesByCategory' => $this->cookies_by_category(),
-			'texts'            => CKIT_Core::texts(),
-			'showFloating'     => (bool) CKIT_Core::settings( 'show_floating_button', 1 ),
-			'floatingPos'      => CKIT_Core::settings( 'floating_position', 'bottom-left' ),
-			'theme'            => CKIT_Core::settings( 'theme', 'light' ),
-			'primaryColor'     => CKIT_Core::settings( 'primary_color', '#0a3d62' ),
-			'acceptColor'      => CKIT_Core::settings( 'accept_color', '#0a3d62' ),
-			'rejectColor'      => CKIT_Core::settings( 'reject_color', '#6c757d' ),
-			'showLogo'         => (bool) CKIT_Core::settings( 'show_logo', 0 ),
-			'logoUrl'          => esc_url_raw( CKIT_Core::settings( 'logo_url', '' ) ),
-			'logoMaxHeight'    => absint( CKIT_Core::settings( 'logo_max_height', 40 ) ),
-			'banner'           => array(
+			'texts'             => CKIT_Core::texts(),
+			'i18n'              => array(
+				'close'           => __( 'Close', 'cookie-kit' ),
+				'logo'            => __( 'Logo', 'cookie-kit' ),
+				'privacyPolicy'   => __( 'Privacy Policy', 'cookie-kit' ),
+				'cookiePolicy'    => __( 'Cookie Policy', 'cookie-kit' ),
+				'acceptAll'       => __( 'Accept all', 'cookie-kit' ),
+				'rejectAll'       => __( 'Reject all', 'cookie-kit' ),
+				'customize'       => __( 'Customize', 'cookie-kit' ),
+				'savePreferences' => __( 'Save preferences', 'cookie-kit' ),
+				'yourPreferences' => __( 'Your preferences', 'cookie-kit' ),
+				'showCookies'     => __( 'Show cookies', 'cookie-kit' ),
+				'colName'         => __( 'Name', 'cookie-kit' ),
+				'colVendor'       => __( 'Provider', 'cookie-kit' ),
+				'colDuration'     => __( 'Duration', 'cookie-kit' ),
+				'colDescription'  => __( 'Purpose', 'cookie-kit' ),
+				'firstParty'      => __( '1st party', 'cookie-kit' ),
+				'thirdParty'      => __( '3rd party', 'cookie-kit' ),
+				'manageCookies'   => __( 'Manage cookies', 'cookie-kit' ),
+			),
+			'showFloating'      => (bool) CKIT_Core::settings( 'show_floating_button', 1 ),
+			'floatingPos'       => CKIT_Core::settings( 'floating_position', 'bottom-left' ),
+			'theme'             => CKIT_Core::settings( 'theme', 'light' ),
+			'primaryColor'      => CKIT_Core::settings( 'primary_color', '#0a3d62' ),
+			'acceptColor'       => CKIT_Core::settings( 'accept_color', '#0a3d62' ),
+			'rejectColor'       => CKIT_Core::settings( 'reject_color', '#6c757d' ),
+			'showLogo'          => (bool) CKIT_Core::settings( 'show_logo', 0 ),
+			'logoUrl'           => esc_url_raw( CKIT_Core::settings( 'logo_url', '' ) ),
+			'logoMaxHeight'     => absint( CKIT_Core::settings( 'logo_max_height', 40 ) ),
+			'banner'            => array(
 				'position' => CKIT_Core::settings( 'banner_position', 'bottom' ),
 				'layout'   => CKIT_Core::settings( 'banner_layout', 'box' ),
 			),
-			'privacyPolicyUrl' => esc_url_raw( CKIT_Core::settings( 'privacy_policy_url', '/informativa-privacy/' ) ),
-			'cookiePolicyUrl'  => esc_url_raw( CKIT_Core::settings( 'cookie_policy_url', '/cookie-policy/' ) ),
-			'lang'             => substr( get_locale(), 0, 2 ),
+			'privacyPolicyUrl'  => esc_url_raw( CKIT_Core::privacy_policy_url() ),
+			'cookiePolicyUrl'   => esc_url_raw( CKIT_Core::cookie_policy_url() ),
+			'lang'              => substr( determine_locale(), 0, 2 ),
 		);
 		wp_localize_script( 'ckit-banner', 'CKIT_CFG', $config );
 
 		wp_enqueue_style( 'ckit-banner' );
 		wp_enqueue_script( 'ckit-banner' );
 
-		// Scanner client-side: si attiva solo se admin loggato e URL contiene ?ckit-snapshot=1.
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $_GET['ckit-snapshot'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['ckit-snapshot'] ) ) && current_user_can( 'manage_options' ) ) {
+		// Client-side scanner: only for a logged-in administrator with ?ckit-snapshot=1 in the URL.
+		if ( CKIT_Core::is_snapshot_mode() ) {
 			wp_register_script(
 				'ckit-snapshot',
 				CKIT_PLUGIN_URL . 'public/js/ckit-snapshot.js',
@@ -82,18 +100,24 @@ class CKIT_Banner {
 				true
 			);
 			$cats = array_keys( CKIT_Core::categories() );
-			// Lista URL da scansionare in sequenza: home + 4 pagine/post random per intercettare cookie installati solo su template specifici (es. articoli con embed YouTube).
-			$urls = array( home_url( '/' ) );
+			// URLs scanned in sequence: home + 2 pages + 2 random posts, to catch cookies set only
+			// on specific templates (e.g. posts with a YouTube embed).
+			$urls  = array( home_url( '/' ) );
 			$pages = get_pages( array( 'number' => 2 ) );
 			foreach ( $pages as $p ) {
 				$urls[] = get_permalink( $p );
 			}
-			$posts = get_posts( array( 'numberposts' => 2, 'orderby' => 'rand' ) );
+			$posts = get_posts(
+				array(
+					'numberposts' => 2,
+					'orderby'     => 'rand',
+				)
+			);
 			foreach ( $posts as $p ) {
 				$urls[] = get_permalink( $p );
 			}
 			$urls = array_values( array_unique( array_filter( $urls ) ) );
-			// Aggiungi parametro snapshot a tutti gli URL
+			// Add the snapshot parameter to every URL.
 			$urls = array_map(
 				function ( $u ) {
 					return add_query_arg( 'ckit-snapshot', '1', $u );
@@ -112,6 +136,28 @@ class CKIT_Banner {
 					'waitSeconds'   => 5,
 					'adminUrl'      => esc_url_raw( admin_url( 'admin.php?page=cookie-kit&tab=scanner' ) ),
 					'pages'         => array_values( $urls ),
+					'i18n'          => array(
+						/* translators: Status shown when the browser scan starts. */
+						'starting'    => __( 'Starting...', 'cookie-kit' ),
+						/* translators: 1: current page number, 2: total pages. */
+						'progress'    => __( 'Page %1$s / %2$s', 'cookie-kit' ),
+						/* translators: 1: page number, 2: seconds to wait. */
+						'loading'     => __( 'Loading page %1$s. Waiting %2$ss for tracking scripts...', 'cookie-kit' ),
+						/* translators: 1: page number, 2: elapsed seconds, 3: total seconds. */
+						'waiting'     => __( 'Page %1$s — waiting for cookies (%2$ss / %3$ss)', 'cookie-kit' ),
+						/* translators: 1: page number, 2: number of cookies found. */
+						'found'       => __( 'Page %1$s — found %2$s cookies. Sending to the server...', 'cookie-kit' ),
+						/* translators: 1: total cookies saved, 2: number of pages. */
+						'done'        => __( 'Snapshot completed — %1$s cookies saved in total across %2$s pages.', 'cookie-kit' ),
+						/* translators: %s: page number. */
+						'next'        => __( 'Page %s done. Moving to the next one in 1s...', 'cookie-kit' ),
+						'backToPanel' => __( 'Back to the scanner panel', 'cookie-kit' ),
+						/* translators: %s: error code or message. */
+						'sendError'   => __( 'Send error: %s', 'cookie-kit' ),
+						'badResponse' => __( 'invalid response', 'cookie-kit' ),
+						/* translators: %s: error message. */
+						'netError'    => __( 'Network error: %s', 'cookie-kit' ),
+					),
 				)
 			);
 			wp_enqueue_script( 'ckit-snapshot' );
@@ -128,14 +174,14 @@ class CKIT_Banner {
 	}
 
 	/**
-	 * Inietta Google Consent Mode v2 in modalità default (denied) prima di GTM/GA.
-	 * Va inserito molto in alto in <head>, prima di qualunque script di tracciamento.
+	 * Print Google Consent Mode v2 defaults (denied) before GTM/GA.
+	 * Must run very early in <head>, before any tracking script.
 	 */
 	public function inline_consent_mode_default() {
 		if ( ! CKIT_Core::settings( 'consent_mode_v2', 1 ) ) {
 			return;
 		}
-		// Snapshot mode: tutti i segnali partono granted così script di tracking installano cookie nativi.
+		// Snapshot mode: every signal starts as granted so tracking scripts set their cookies natively.
 		if ( CKIT_Core::is_snapshot_mode() ) {
 			?>
 <script>
@@ -175,19 +221,16 @@ gtag('set', 'url_passthrough', true);
 	}
 
 	public function render() {
-		// Snapshot mode: niente banner, lo snapshot script lavora senza interferenze.
-		if ( CKIT_Core::is_snapshot_mode() ) {
-			echo '<div id="ckit-root" aria-hidden="true"></div>';
-			return;
-		}
+		// The banner is built by ckit-banner.js inside this container.
+		// In snapshot mode the snapshot script works without banner interference.
 		echo '<div id="ckit-root" aria-hidden="true"></div>';
 	}
 
 	/**
-	 * Costruisce per ogni categoria la lista dei cookie da mostrare nel modale di personalizzazione.
-	 * Fonte di verità: tabella wp_ckit_cookie_scan (cookie REALI rilevati dallo scanner).
-	 * Il dizionario interno (cookie_meta_dictionary) arricchisce solo durata e finalità per cookie noti.
-	 * Niente cookie "dichiarati" nei vendor: il banner mostra solo cookie effettivamente rilevati.
+	 * Build, for each category, the list of cookies shown in the preferences modal.
+	 * Source of truth: the wp_ckit_cookie_scan table (REAL cookies detected by the scanner).
+	 * The internal dictionary (cookie_meta_dictionary) only adds duration and purpose for known cookies.
+	 * No cookies "declared" in vendors: the banner only lists cookies actually detected.
 	 *
 	 * @return array { cat_id => [ {name, vendor, duration, description, party}, ... ] }
 	 */
@@ -200,10 +243,10 @@ gtag('set', 'url_passthrough', true);
 			$out[ $cid ] = array();
 		}
 
-		// Fonte unica: cookie effettivamente rilevati dallo Scanner (passivo + client-side).
+		// Single source: cookies actually detected by the scanner (server-side + client-side).
 		global $wpdb;
 		$scan_table = $wpdb->prefix . 'ckit_cookie_scan';
-		$exists     = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $scan_table ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$exists     = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $scan_table ) ); // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery
 		if ( $exists ) {
 			$rows = $wpdb->get_results( "SELECT cookie_name, cookie_domain, category, vendor, duration, party FROM {$scan_table} ORDER BY category, cookie_name" ); // phpcs:ignore WordPress.DB
 			if ( $rows ) {
@@ -217,8 +260,8 @@ gtag('set', 'url_passthrough', true);
 					if ( isset( $seen[ $key ] ) ) {
 						continue;
 					}
-					$seen[ $key ] = true;
-					$lookup       = $this->lookup_cookie_meta( $r->cookie_name, $meta_dict );
+					$seen[ $key ]  = true;
+					$lookup        = $this->lookup_cookie_meta( $r->cookie_name, $meta_dict );
 					$out[ $cid ][] = array(
 						'name'        => $r->cookie_name,
 						'vendor'      => $r->vendor ? $r->vendor : ( $r->cookie_domain ? $r->cookie_domain : '—' ),
@@ -230,13 +273,13 @@ gtag('set', 'url_passthrough', true);
 			}
 		}
 
-		// Fallback necessary: il cookie di consenso del plugin deve sempre comparire.
+		// Necessary fallback: the plugin's own consent cookie must always be listed.
 		if ( isset( $out['necessary'] ) && ! $this->has_cookie( $out['necessary'], CKIT_CONSENT_COOKIE ) ) {
 			$out['necessary'][] = array(
 				'name'        => CKIT_CONSENT_COOKIE,
-				'vendor'      => __( 'Sito', 'cookie-kit' ),
-				'duration'    => __( '6 mesi', 'cookie-kit' ),
-				'description' => __( 'Memorizza le preferenze cookie espresse dall\'utente.', 'cookie-kit' ),
+				'vendor'      => __( 'Site', 'cookie-kit' ),
+				'duration'    => __( '6 months', 'cookie-kit' ),
+				'description' => __( 'Stores the cookie preferences expressed by the user.', 'cookie-kit' ),
 				'party'       => 'first',
 			);
 		}
@@ -254,7 +297,7 @@ gtag('set', 'url_passthrough', true);
 	}
 
 	private function lookup_cookie_meta( $name, $dict ) {
-		// Match esatto, poi pattern wildcard *.
+		// Exact match first, then * wildcard patterns.
 		if ( isset( $dict[ $name ] ) ) {
 			return $dict[ $name ];
 		}
@@ -273,72 +316,80 @@ gtag('set', 'url_passthrough', true);
 		);
 	}
 
+	/**
+	 * Known cookies: duration and purpose shown in the preferences modal.
+	 * Values come from CookieKit 1.1.x; vendors change their cookies over time,
+	 * so site owners should check them against their cookie policy.
+	 *
+	 * @return array
+	 */
 	private function cookie_meta_dictionary() {
+		$session = __( 'Session', 'cookie-kit' );
 		return array(
-			// Tecnici / WP / sito.
-			'PHPSESSID'              => array( 'duration' => __( 'Sessione', 'cookie-kit' ), 'description' => __( 'Identificatore tecnico della sessione PHP.', 'cookie-kit' ) ),
-			'wordpress_logged_in_*'  => array( 'duration' => __( '48 ore', 'cookie-kit' ), 'description' => __( 'Mantiene autenticato l\'utente registrato in area riservata.', 'cookie-kit' ) ),
-			'wordpress_sec_*'        => array( 'duration' => __( 'Sessione', 'cookie-kit' ), 'description' => __( 'Cookie di sicurezza dell\'area riservata.', 'cookie-kit' ) ),
-			'wp-settings-*'          => array( 'duration' => __( '1 anno', 'cookie-kit' ), 'description' => __( 'Memorizza le preferenze della bacheca WordPress.', 'cookie-kit' ) ),
-			'wp-settings-time-*'     => array( 'duration' => __( '1 anno', 'cookie-kit' ), 'description' => __( 'Timestamp delle preferenze bacheca WordPress.', 'cookie-kit' ) ),
-			'ckit_consent'           => array( 'duration' => __( '6 mesi', 'cookie-kit' ), 'description' => __( 'Memorizza le preferenze cookie espresse dall\'utente.', 'cookie-kit' ) ),
+			// Technical / WordPress / site.
+			'PHPSESSID'                => array( 'duration' => $session, 'description' => __( 'Technical identifier of the PHP session.', 'cookie-kit' ) ),
+			'wordpress_logged_in_*'    => array( 'duration' => __( '48 hours', 'cookie-kit' ), 'description' => __( 'Keeps registered users logged in to the reserved area.', 'cookie-kit' ) ),
+			'wordpress_sec_*'          => array( 'duration' => $session, 'description' => __( 'Security cookie for the reserved area.', 'cookie-kit' ) ),
+			'wp-settings-*'            => array( 'duration' => __( '1 year', 'cookie-kit' ), 'description' => __( 'Stores WordPress dashboard preferences.', 'cookie-kit' ) ),
+			'wp-settings-time-*'       => array( 'duration' => __( '1 year', 'cookie-kit' ), 'description' => __( 'Timestamp of WordPress dashboard preferences.', 'cookie-kit' ) ),
+			'ckit_consent'             => array( 'duration' => __( '6 months', 'cookie-kit' ), 'description' => __( 'Stores the cookie preferences expressed by the user.', 'cookie-kit' ) ),
 			// Cloudflare.
-			'__cf_bm'                => array( 'duration' => __( '30 minuti', 'cookie-kit' ), 'description' => __( 'Cloudflare Bot Management: distingue traffico umano da bot.', 'cookie-kit' ) ),
-			'__cflb'                 => array( 'duration' => __( '1 giorno', 'cookie-kit' ), 'description' => __( 'Cloudflare Load Balancing.', 'cookie-kit' ) ),
-			'__cfduid'               => array( 'duration' => __( '30 giorni', 'cookie-kit' ), 'description' => __( 'Cloudflare: identifica il client per applicare regole di sicurezza.', 'cookie-kit' ) ),
-			'cf_clearance'           => array( 'duration' => __( '30 giorni', 'cookie-kit' ), 'description' => __( 'Cloudflare: superamento di una sfida anti-bot.', 'cookie-kit' ) ),
-			'cf_chl_*'               => array( 'duration' => __( 'Sessione', 'cookie-kit' ), 'description' => __( 'Cloudflare: stato di una sfida anti-bot in corso.', 'cookie-kit' ) ),
+			'__cf_bm'                  => array( 'duration' => __( '30 minutes', 'cookie-kit' ), 'description' => __( 'Cloudflare Bot Management: distinguishes human traffic from bots.', 'cookie-kit' ) ),
+			'__cflb'                   => array( 'duration' => __( '1 day', 'cookie-kit' ), 'description' => __( 'Cloudflare Load Balancing.', 'cookie-kit' ) ),
+			'__cfduid'                 => array( 'duration' => __( '30 days', 'cookie-kit' ), 'description' => __( 'Cloudflare: identifies the client to apply security rules.', 'cookie-kit' ) ),
+			'cf_clearance'             => array( 'duration' => __( '30 days', 'cookie-kit' ), 'description' => __( 'Cloudflare: an anti-bot challenge was passed.', 'cookie-kit' ) ),
+			'cf_chl_*'                 => array( 'duration' => $session, 'description' => __( 'Cloudflare: state of an anti-bot challenge in progress.', 'cookie-kit' ) ),
 			// Google Analytics.
-			'_ga'                    => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'Google Analytics: identifica univocamente l\'utente.', 'cookie-kit' ) ),
-			'_ga_*'                  => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'Google Analytics 4: persistenza dello stato di sessione.', 'cookie-kit' ) ),
-			'_gid'                   => array( 'duration' => __( '24 ore', 'cookie-kit' ), 'description' => __( 'Google Analytics: distingue gli utenti entro 24 ore.', 'cookie-kit' ) ),
-			'_gat'                   => array( 'duration' => __( '1 minuto', 'cookie-kit' ), 'description' => __( 'Google Analytics: limita il volume delle richieste (throttling).', 'cookie-kit' ) ),
+			'_ga'                      => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'Google Analytics: uniquely identifies the user.', 'cookie-kit' ) ),
+			'_ga_*'                    => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'Google Analytics 4: persists the session state.', 'cookie-kit' ) ),
+			'_gid'                     => array( 'duration' => __( '24 hours', 'cookie-kit' ), 'description' => __( 'Google Analytics: distinguishes users within 24 hours.', 'cookie-kit' ) ),
+			'_gat'                     => array( 'duration' => __( '1 minute', 'cookie-kit' ), 'description' => __( 'Google Analytics: limits the request rate (throttling).', 'cookie-kit' ) ),
 			// Google Tag Manager.
-			'_dc_gtm_*'              => array( 'duration' => __( '1 minuto', 'cookie-kit' ), 'description' => __( 'Google Tag Manager: throttling delle richieste.', 'cookie-kit' ) ),
+			'_dc_gtm_*'                => array( 'duration' => __( '1 minute', 'cookie-kit' ), 'description' => __( 'Google Tag Manager: request throttling.', 'cookie-kit' ) ),
 			// Google Ads / Marketing Platform.
-			'IDE'                    => array( 'duration' => __( '13 mesi', 'cookie-kit' ), 'description' => __( 'Google Ads: pubblicità personalizzata e remarketing.', 'cookie-kit' ) ),
-			'test_cookie'            => array( 'duration' => __( '15 minuti', 'cookie-kit' ), 'description' => __( 'Google Ads: verifica che il browser supporti i cookie.', 'cookie-kit' ) ),
-			'DSID'                   => array( 'duration' => __( '14 giorni', 'cookie-kit' ), 'description' => __( 'Google: identificatore pubblicitario cross-device.', 'cookie-kit' ) ),
-			'id'                     => array( 'duration' => __( '13 mesi', 'cookie-kit' ), 'description' => __( 'Google DoubleClick: identificatore univoco per la pubblicità.', 'cookie-kit' ) ),
-			'RUL'                    => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Google DoubleClick: tracciamento di reindirizzamenti pubblicitari.', 'cookie-kit' ) ),
-			'_gcl_au'                => array( 'duration' => __( '3 mesi', 'cookie-kit' ), 'description' => __( 'Google Conversion Linker: collega visite e conversioni Google Ads.', 'cookie-kit' ) ),
-			'_gcl_aw'                => array( 'duration' => __( '3 mesi', 'cookie-kit' ), 'description' => __( 'Google Ads: tracciamento click campagne pubblicitarie.', 'cookie-kit' ) ),
-			'_gcl_dc'                => array( 'duration' => __( '3 mesi', 'cookie-kit' ), 'description' => __( 'Google Display Network: tracciamento click.', 'cookie-kit' ) ),
-			'1P_JAR'                 => array( 'duration' => __( '1 mese', 'cookie-kit' ), 'description' => __( 'Google: raccolta statistiche e personalizzazione annunci.', 'cookie-kit' ) ),
+			'IDE'                      => array( 'duration' => __( '13 months', 'cookie-kit' ), 'description' => __( 'Google Ads: personalised advertising and remarketing.', 'cookie-kit' ) ),
+			'test_cookie'              => array( 'duration' => __( '15 minutes', 'cookie-kit' ), 'description' => __( 'Google Ads: checks whether the browser supports cookies.', 'cookie-kit' ) ),
+			'DSID'                     => array( 'duration' => __( '14 days', 'cookie-kit' ), 'description' => __( 'Google: cross-device advertising identifier.', 'cookie-kit' ) ),
+			'id'                       => array( 'duration' => __( '13 months', 'cookie-kit' ), 'description' => __( 'Google DoubleClick: unique identifier for advertising.', 'cookie-kit' ) ),
+			'RUL'                      => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Google DoubleClick: tracking of advertising redirects.', 'cookie-kit' ) ),
+			'_gcl_au'                  => array( 'duration' => __( '3 months', 'cookie-kit' ), 'description' => __( 'Google Conversion Linker: links visits and Google Ads conversions.', 'cookie-kit' ) ),
+			'_gcl_aw'                  => array( 'duration' => __( '3 months', 'cookie-kit' ), 'description' => __( 'Google Ads: click tracking for advertising campaigns.', 'cookie-kit' ) ),
+			'_gcl_dc'                  => array( 'duration' => __( '3 months', 'cookie-kit' ), 'description' => __( 'Google Display Network: click tracking.', 'cookie-kit' ) ),
+			'1P_JAR'                   => array( 'duration' => __( '1 month', 'cookie-kit' ), 'description' => __( 'Google: statistics collection and ad personalisation.', 'cookie-kit' ) ),
 			// Facebook / Meta.
-			'_fbp'                   => array( 'duration' => __( '90 giorni', 'cookie-kit' ), 'description' => __( 'Meta Pixel: tracciamento conversioni e campagne pubblicitarie.', 'cookie-kit' ) ),
-			'_fbc'                   => array( 'duration' => __( '90 giorni', 'cookie-kit' ), 'description' => __( 'Meta Pixel: tracciamento click pubblicitari.', 'cookie-kit' ) ),
-			'fr'                     => array( 'duration' => __( '90 giorni', 'cookie-kit' ), 'description' => __( 'Facebook: pubblicità personalizzata.', 'cookie-kit' ) ),
+			'_fbp'                     => array( 'duration' => __( '90 days', 'cookie-kit' ), 'description' => __( 'Meta Pixel: conversion and advertising campaign tracking.', 'cookie-kit' ) ),
+			'_fbc'                     => array( 'duration' => __( '90 days', 'cookie-kit' ), 'description' => __( 'Meta Pixel: advertising click tracking.', 'cookie-kit' ) ),
+			'fr'                       => array( 'duration' => __( '90 days', 'cookie-kit' ), 'description' => __( 'Facebook: personalised advertising.', 'cookie-kit' ) ),
 			// LinkedIn.
-			'bcookie'                => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'LinkedIn: identificatore browser.', 'cookie-kit' ) ),
-			'li_sugr'                => array( 'duration' => __( '90 giorni', 'cookie-kit' ), 'description' => __( 'LinkedIn: identificazione utente per pubblicità.', 'cookie-kit' ) ),
+			'bcookie'                  => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'LinkedIn: browser identifier.', 'cookie-kit' ) ),
+			'li_sugr'                  => array( 'duration' => __( '90 days', 'cookie-kit' ), 'description' => __( 'LinkedIn: user identification for advertising.', 'cookie-kit' ) ),
 			// X / Twitter.
-			'guest_id'               => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'X: identificatore visitatore.', 'cookie-kit' ) ),
-			'personalization_id'     => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'X: personalizzazione contenuti e pubblicità.', 'cookie-kit' ) ),
+			'guest_id'                 => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'X: visitor identifier.', 'cookie-kit' ) ),
+			'personalization_id'       => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'X: content and advertising personalisation.', 'cookie-kit' ) ),
 			// YouTube.
-			'VISITOR_INFO1_LIVE'     => array( 'duration' => __( '6 mesi', 'cookie-kit' ), 'description' => __( 'YouTube: stima banda e statistiche video.', 'cookie-kit' ) ),
-			'VISITOR_PRIVACY_METADATA' => array( 'duration' => __( '6 mesi', 'cookie-kit' ), 'description' => __( 'YouTube: memorizza le preferenze privacy dell\'utente nel player video.', 'cookie-kit' ) ),
-			'YSC'                    => array( 'duration' => __( 'Sessione', 'cookie-kit' ), 'description' => __( 'YouTube: tracciamento visualizzazioni nella sessione.', 'cookie-kit' ) ),
-			'PREF'                   => array( 'duration' => __( '8 mesi', 'cookie-kit' ), 'description' => __( 'YouTube/Google: preferenze utente.', 'cookie-kit' ) ),
+			'VISITOR_INFO1_LIVE'       => array( 'duration' => __( '6 months', 'cookie-kit' ), 'description' => __( 'YouTube: bandwidth estimation and video statistics.', 'cookie-kit' ) ),
+			'VISITOR_PRIVACY_METADATA' => array( 'duration' => __( '6 months', 'cookie-kit' ), 'description' => __( 'YouTube: stores the user\'s privacy preferences in the video player.', 'cookie-kit' ) ),
+			'YSC'                      => array( 'duration' => $session, 'description' => __( 'YouTube: tracks views within the session.', 'cookie-kit' ) ),
+			'PREF'                     => array( 'duration' => __( '8 months', 'cookie-kit' ), 'description' => __( 'YouTube/Google: user preferences.', 'cookie-kit' ) ),
 			// Google Maps.
-			'NID'                    => array( 'duration' => __( '6 mesi', 'cookie-kit' ), 'description' => __( 'Google: personalizzazione annunci e contenuti.', 'cookie-kit' ) ),
-			'CONSENT'                => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'Google: stato del consenso utente.', 'cookie-kit' ) ),
+			'NID'                      => array( 'duration' => __( '6 months', 'cookie-kit' ), 'description' => __( 'Google: ad and content personalisation.', 'cookie-kit' ) ),
+			'CONSENT'                  => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'Google: user consent status.', 'cookie-kit' ) ),
 			// Microsoft Clarity.
-			'_clck'                  => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: identificatore utente per heatmap e session replay.', 'cookie-kit' ) ),
-			'_clsk'                  => array( 'duration' => __( '24 ore', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: identificatore di sessione.', 'cookie-kit' ) ),
-			'CLID'                   => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: identificatore client.', 'cookie-kit' ) ),
-			'MUID'                   => array( 'duration' => __( '13 mesi', 'cookie-kit' ), 'description' => __( 'Microsoft: identificatore univoco cross-property.', 'cookie-kit' ) ),
+			'_clck'                    => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: user identifier for heatmaps and session replay.', 'cookie-kit' ) ),
+			'_clsk'                    => array( 'duration' => __( '24 hours', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: session identifier.', 'cookie-kit' ) ),
+			'CLID'                     => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Microsoft Clarity: client identifier.', 'cookie-kit' ) ),
+			'MUID'                     => array( 'duration' => __( '13 months', 'cookie-kit' ), 'description' => __( 'Microsoft: unique cross-property identifier.', 'cookie-kit' ) ),
 			// Hotjar.
-			'_hjSessionUser_*'       => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Hotjar: identificatore utente per heatmap.', 'cookie-kit' ) ),
-			'_hjSession_*'           => array( 'duration' => __( '30 minuti', 'cookie-kit' ), 'description' => __( 'Hotjar: identificatore di sessione.', 'cookie-kit' ) ),
-			'_hjFirstSeen'           => array( 'duration' => __( 'Sessione', 'cookie-kit' ), 'description' => __( 'Hotjar: prima visita dell\'utente.', 'cookie-kit' ) ),
+			'_hjSessionUser_*'         => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Hotjar: user identifier for heatmaps.', 'cookie-kit' ) ),
+			'_hjSession_*'             => array( 'duration' => __( '30 minutes', 'cookie-kit' ), 'description' => __( 'Hotjar: session identifier.', 'cookie-kit' ) ),
+			'_hjFirstSeen'             => array( 'duration' => $session, 'description' => __( 'Hotjar: the user\'s first visit.', 'cookie-kit' ) ),
 			// Vimeo.
-			'vuid'                   => array( 'duration' => __( '24 mesi', 'cookie-kit' ), 'description' => __( 'Vimeo: identificatore utente per analytics video.', 'cookie-kit' ) ),
-			'player'                 => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Vimeo: preferenze del player video (qualità, volume, dimensioni).', 'cookie-kit' ) ),
-			'continuous_play_v3'     => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Vimeo: gestione riproduzione continua dei video.', 'cookie-kit' ) ),
-			// Amazon affiliazione.
-			'session-id'             => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Amazon: identificatore di sessione utente.', 'cookie-kit' ) ),
-			'ubid-main'              => array( 'duration' => __( '12 mesi', 'cookie-kit' ), 'description' => __( 'Amazon: identificatore univoco.', 'cookie-kit' ) ),
+			'vuid'                     => array( 'duration' => __( '24 months', 'cookie-kit' ), 'description' => __( 'Vimeo: user identifier for video analytics.', 'cookie-kit' ) ),
+			'player'                   => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Vimeo: video player preferences (quality, volume, size).', 'cookie-kit' ) ),
+			'continuous_play_v3'       => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Vimeo: continuous video playback.', 'cookie-kit' ) ),
+			// Amazon affiliate.
+			'session-id'               => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Amazon: user session identifier.', 'cookie-kit' ) ),
+			'ubid-main'                => array( 'duration' => __( '12 months', 'cookie-kit' ), 'description' => __( 'Amazon: unique identifier.', 'cookie-kit' ) ),
 		);
 	}
 
@@ -350,7 +401,7 @@ gtag('set', 'url_passthrough', true);
 			),
 			$atts
 		);
-		$label = $atts['label'] ? $atts['label'] : __( 'Gestisci cookie', 'cookie-kit' );
+		$label = $atts['label'] ? $atts['label'] : __( 'Manage cookies', 'cookie-kit' );
 		return sprintf(
 			'<a href="#" class="%s" data-ckit-open-prefs="1">%s</a>',
 			esc_attr( $atts['class'] ),

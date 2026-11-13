@@ -1,10 +1,10 @@
 <?php
 /**
- * Scanner — Scansione passiva del sito per individuare i cookie installati.
- * Tecnica: GET di una serie di URL del sito tramite wp_remote_get(), parsing degli header
- * `Set-Cookie` e parsing dell'HTML alla ricerca di script terze parti riconosciuti.
- * NB: per cookie JS lazy-loaded servirebbe headless browser; questa scansione coglie i cookie
- * impostati lato server e i vendor caricati nell'HTML.
+ * Scanner — Passive scan of the site to find the cookies it sets.
+ * Technique: GET a set of the site's own URLs with wp_safe_remote_get(), parse the
+ * `Set-Cookie` headers and look for known third-party vendors in the HTML.
+ * Note: cookies set by JavaScript are not visible here; they are collected by the
+ * client-side browser scan (ckit-snapshot.js).
  *
  * @package CookieKit
  */
@@ -59,7 +59,7 @@ class CKIT_Scanner {
 				foreach ( $cookies as $cookie ) {
 					$name   = $cookie->name;
 					$domain = ! empty( $cookie->domain ) ? $cookie->domain : wp_parse_url( $url, PHP_URL_HOST );
-					$expire = ! empty( $cookie->expires ) ? gmdate( 'Y-m-d', $cookie->expires ) : 'Sessione';
+					$expire = ! empty( $cookie->expires ) ? gmdate( 'Y-m-d', $cookie->expires ) : __( 'Session', 'cookie-kit' );
 					$result['cookies'][ $name . '|' . $domain ] = array(
 						'name'     => $name,
 						'domain'   => $domain,
@@ -69,7 +69,7 @@ class CKIT_Scanner {
 				}
 			}
 
-			// Parse HTML body per trovare vendor terzi.
+			// Parse the HTML body to find third-party vendors.
 			$body    = wp_remote_retrieve_body( $response );
 			$vendors = CKIT_Core::vendors();
 			foreach ( $vendors as $v ) {
@@ -133,8 +133,8 @@ class CKIT_Scanner {
 				}
 			}
 		}
-		// Match per dominio del cookie con host di un vendor configurato.
-		// Es: cookie su `.youtube.com` → vendor "YouTube Embed" (host youtube.com) → categoria marketing.
+		// Match the cookie domain against the host of a configured vendor.
+		// E.g. a cookie on `.youtube.com` → vendor "YouTube Embed" (host youtube.com) → marketing.
 		if ( $domain ) {
 			$d = ltrim( strtolower( $domain ), '.' );
 			foreach ( $vendors as $v ) {
@@ -152,15 +152,15 @@ class CKIT_Scanner {
 			}
 		}
 
-		// First-party: cookie tecnici WP/PHP/CKIT.
+		// First-party technical cookies: WordPress, PHP, CookieKit.
 		if ( 'first' === $party && preg_match( '/^(PHPSESSID|wordpress|wp-|wp_|ckit_)/i', $name ) ) {
 			return array(
 				'category' => 'necessary',
 				'party'    => $party,
-				'vendor'   => 'WordPress / Sito',
+				'vendor'   => __( 'WordPress / Site', 'cookie-kit' ),
 			);
 		}
-		// Cloudflare (sicurezza, anti-bot, load balancing): tecnici, esenti da consenso ex art. 122 Codice Privacy.
+		// Cloudflare (security, anti-bot, load balancing): classified as technical cookies.
 		if ( preg_match( '/^(__cf_bm|__cflb|__cfduid|__cfwaitingroom|cf_clearance|cf_chl_.*|cf_ob_info|cf_use_ob)$/i', $name ) ) {
 			return array(
 				'category' => 'necessary',
@@ -168,15 +168,15 @@ class CKIT_Scanner {
 				'vendor'   => 'Cloudflare',
 			);
 		}
-		// Token CSRF / sicurezza form (tipici di framework PHP, Symfony, Laravel, ecc.).
+		// CSRF / form security tokens (common in PHP frameworks such as Symfony and Laravel).
 		if ( preg_match( '/^(_csrf|XSRF-TOKEN|csrf_token|csrftoken|laravel_session|symfony_)/i', $name ) ) {
 			return array(
 				'category' => 'necessary',
 				'party'    => $party,
-				'vendor'   => 'Sicurezza form / CSRF',
+				'vendor'   => __( 'Form security / CSRF', 'cookie-kit' ),
 			);
 		}
-		// Cookie WooCommerce (sessione carrello, checkout): tecnici.
+		// WooCommerce cookies (cart session, checkout): technical.
 		if ( 'first' === $party && preg_match( '/^(woocommerce_|wc_|tk_)/i', $name ) ) {
 			return array(
 				'category' => 'necessary',
@@ -199,14 +199,14 @@ class CKIT_Scanner {
 	}
 
 	/**
-	 * Vendor catalog enrichment: dopo lo snapshot client-side, fetch dell'HTML server-side
-	 * per rilevare vendor presenti (iframe YouTube, script GTM, embed Vimeo, ecc.) e aggiungere
-	 * automaticamente i loro cookie dichiarati come third-party.
-	 * Necessario perché il browser per Same-Origin Policy non espone a JavaScript i cookie
-	 * dei domini terzi (es. .youtube.com), quindi lo snapshot client da solo li perde.
+	 * Vendor catalog enrichment: after the client-side snapshot, fetch the page HTML server-side
+	 * to detect vendors in use (YouTube iframes, GTM scripts, Vimeo embeds, etc.) and add the
+	 * cookies declared for them as third-party cookies.
+	 * Needed because browsers never expose third-party cookies (e.g. .youtube.com) to the
+	 * page's JavaScript, so the client-side snapshot alone misses them.
 	 *
-	 * @param string $page_url URL della pagina da analizzare.
-	 * @return int numero di righe aggiunte.
+	 * @param string $page_url URL of the page to analyse (must belong to this site).
+	 * @return int Number of rows added.
 	 */
 	public function enrich_from_html( $page_url ) {
 		// Only fetch pages of this site (prevents server-side requests to arbitrary hosts).
@@ -241,11 +241,11 @@ class CKIT_Scanner {
 			}
 			$host  = $v['host'];
 			$found = false;
-			// Match host nell'HTML (iframe src, script src, link href).
+			// Host match in the HTML (iframe src, script src, link href).
 			if ( false !== stripos( $body, $host ) ) {
 				$found = true;
 			}
-			// Match anche pattern regex se definito.
+			// Also match the regex pattern, if set.
 			if ( ! $found && ! empty( $v['pattern'] ) ) {
 				if ( @preg_match( $v['pattern'], $body ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
 					$found = true;
@@ -254,7 +254,7 @@ class CKIT_Scanner {
 			if ( ! $found ) {
 				continue;
 			}
-			// Vendor presente nella pagina: aggiungi i suoi cookie dichiarati alla tabella scan.
+			// Vendor found in the page: add its declared cookies to the scan table.
 			if ( empty( $v['cookies'] ) ) {
 				continue;
 			}
@@ -264,7 +264,7 @@ class CKIT_Scanner {
 			$cookie_dom   = '.' . preg_replace( '#^(www\.)?#', '', $host );
 
 			foreach ( $cookie_names as $name ) {
-				// Espandi pattern wildcard *: per ora salta (li tratta solo classify_cookie via regex).
+				// Wildcard (*) names cannot be stored as concrete cookies; classify_cookie() handles them.
 				if ( false !== strpos( $name, '*' ) ) {
 					continue;
 				}
@@ -288,12 +288,12 @@ class CKIT_Scanner {
 	}
 
 	/**
-	 * Salva uno snapshot di cookie raccolti dal browser dell'admin loggato (scanner client-side).
-	 * Per ogni cookie applica classify_cookie() per determinare categoria, parte, vendor.
+	 * Save a snapshot of cookies collected by the logged-in admin's browser (client-side scanner).
+	 * Each cookie goes through classify_cookie() to determine category, party and vendor.
 	 *
-	 * @param array  $cookies array di nomi cookie (stringhe), oppure array di array con chiavi 'name' (e opzionali 'domain', 'expires').
-	 * @param string $page_url URL della pagina visitata.
-	 * @return int numero di righe inserite/aggiornate.
+	 * @param array  $cookies  Cookie names (strings), or arrays with a 'name' key (optional 'domain', 'expires').
+	 * @param string $page_url URL of the visited page.
+	 * @return int Number of rows inserted/updated.
 	 */
 	public function save_snapshot( array $cookies, $page_url = '' ) {
 		global $wpdb;

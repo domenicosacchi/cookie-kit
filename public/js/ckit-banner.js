@@ -1,7 +1,7 @@
 /*!
  * CookieKit — Banner (footer)
- * Renderizza banner + modale preferenze + pulsante footer.
- * Salva il consenso nel cookie ckit_consent e invia il log al REST endpoint /cookiekit/v1/consent.
+ * Renders the banner, the preferences modal and the floating footer button.
+ * Stores the consent in the ckit_consent cookie and sends it to the REST endpoint /cookiekit/v1/consent.
  */
 (function () {
 	'use strict';
@@ -11,6 +11,7 @@
 	var REPROMPT_DAYS = CFG.repromptDays || 180;
 	var TEXTS = CFG.texts || {};
 	var CATS = CFG.categories || {};
+	var I18N = CFG.i18n || {};
 
 	function uuid() {
 		if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -39,11 +40,11 @@
 		var raw = readCookie(COOKIE);
 		var data = parse(raw);
 		if (!data || !data.consent_uuid) return null;
-		// Se la versione policy è cambiata, ignora il consenso pregresso.
+		// If the policy version changed, ignore the previous consent.
 		if (data.policy_version && CFG.policyVersion && data.policy_version !== CFG.policyVersion) {
 			return null;
 		}
-		// Re-prompt scaduto?
+		// Re-prompt period expired?
 		if (data.expires_at && (new Date(data.expires_at)).getTime() < Date.now()) {
 			return null;
 		}
@@ -60,7 +61,7 @@
 			expires_at: new Date(Date.now() + REPROMPT_DAYS * 86400000).toISOString()
 		};
 		setCookie(COOKIE, JSON.stringify(consent), REPROMPT_DAYS);
-		// REST log (best-effort, non blocca UX).
+		// REST log (best effort, never blocks the UI).
 		try {
 			fetch(CFG.restUrl, {
 				method: 'POST',
@@ -74,7 +75,7 @@
 				})
 			});
 		} catch (e) { /* swallow */ }
-		// Update window.CKIT + gtag.
+		// Update window.CKIT and Consent Mode (via ckit-blocker.js).
 		window.CKIT = window.CKIT || {};
 		window.CKIT.consent = { given: true, categories: categories, uuid: consent.consent_uuid, policyVersion: CFG.policyVersion };
 		if (typeof window.CKIT.applyConsent === 'function') {
@@ -97,19 +98,19 @@
 		return n;
 	}
 
-	// Escape HTML semplice per evitare XSS quando si rende un testo come HTML.
+	// Simple HTML escaping to prevent XSS when a text is rendered as HTML.
 	function escapeHtml(s) {
 		return String(s).replace(/[&<>"']/g, function (c) {
 			return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
 		});
 	}
 
-	// Converte testo con sintassi [testo](url) in HTML con <a> sicuri (target=_blank rel=noopener).
-	// Tutto il resto del testo è escapato per prevenire XSS.
+	// Converts [text](url) syntax into safe <a> links (target=_blank rel=noopener).
+	// Everything else is escaped to prevent XSS.
 	function richText(text) {
 		if (!text) return '';
 		var safe = escapeHtml(text);
-		// Pattern: [link text](https://example.com) — solo http(s) o root-relative.
+		// Pattern: [link text](https://example.com) — only http(s) or root-relative URLs.
 		return safe.replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)\s]+)\)/g, function (m, label, url) {
 			return '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>';
 		});
@@ -133,44 +134,45 @@
 			'aria-label': TEXTS.banner_title || ''
 		});
 
-		// Pulsante chiusura (X) — posizione assoluta in alto a destra. = Rifiuto, conforme prov. Garante 231/2021.
+		// Close button (X), absolutely positioned top right. Closing the banner counts as a rejection:
+		// no consent is given and only necessary cookies are used.
 		box.appendChild(el('button', {
 			type: 'button',
 			class: 'ckit-btn ckit-btn--close',
-			'aria-label': TEXTS.btn_close || 'Chiudi',
+			'aria-label': TEXTS.btn_close || I18N.close || 'Close',
 			on: { click: function () { onChoice('reject_all'); } }
 		}, ['×']));
 
-		// Wrapper interno flex orizzontale: [logo | contenuto | actions].
+		// Horizontal flex wrapper: [logo | content | actions].
 		var inner = el('div', { class: 'ckit-banner__inner' });
 
-		// Colonna sinistra: logo (se attivo) + linea verticale di separazione (CSS border-right).
+		// Left column: logo (if enabled) + vertical separator (CSS border-right).
 		if (hasLogo) {
 			var logoCol = el('div', { class: 'ckit-banner__logo-col' });
-			var logoImg = el('img', { src: CFG.logoUrl, alt: TEXTS.banner_title || 'Logo', class: 'ckit-banner__logo' });
+			var logoImg = el('img', { src: CFG.logoUrl, alt: TEXTS.banner_title || I18N.logo || 'Logo', class: 'ckit-banner__logo' });
 			if (CFG.logoMaxHeight) logoImg.style.maxHeight = CFG.logoMaxHeight + 'px';
 			logoCol.appendChild(logoImg);
 			inner.appendChild(logoCol);
 		}
 
-		// Colonna centrale: titolo + testo + link.
+		// Center column: title + text + links.
 		var content = el('div', { class: 'ckit-banner__content' });
 		content.appendChild(el('h2', { class: 'ckit-banner__title' }, [TEXTS.banner_title || '']));
 		var msgWrap = el('div', { class: 'ckit-banner__msg' });
 		msgWrap.appendChild(el('p', { html: richText(TEXTS.banner_message || '') }));
 		msgWrap.appendChild(el('p', { class: 'ckit-banner__links' }, [
-			el('a', { href: CFG.privacyPolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.privacy_link_text || 'Informativa Privacy']),
+			el('a', { href: CFG.privacyPolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.privacy_link_text || I18N.privacyPolicy || 'Privacy Policy']),
 			document.createTextNode(' · '),
-			el('a', { href: CFG.cookiePolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.cookies_link_text || 'Cookie Policy'])
+			el('a', { href: CFG.cookiePolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.cookies_link_text || I18N.cookiePolicy || 'Cookie Policy'])
 		]));
 		content.appendChild(msgWrap);
 		inner.appendChild(content);
 
-		// Colonna destra: pulsanti azione (in colonna su desktop, in riga su mobile).
+		// Right column: action buttons (stacked on desktop, in a row on mobile).
 		var actions = el('div', { class: 'ckit-banner__actions' });
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--accept', on: { click: function () { onChoice('accept_all'); } } }, [TEXTS.btn_accept_all || 'Accetta tutti']));
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--reject', on: { click: function () { onChoice('reject_all'); } } }, [TEXTS.btn_reject_all || 'Rifiuta tutti']));
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--customize', on: { click: function () { onChoice('customize'); } } }, [TEXTS.btn_customize || 'Personalizza']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--accept', on: { click: function () { onChoice('accept_all'); } } }, [TEXTS.btn_accept_all || I18N.acceptAll || 'Accept all']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--reject', on: { click: function () { onChoice('reject_all'); } } }, [TEXTS.btn_reject_all || I18N.rejectAll || 'Reject all']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--customize', on: { click: function () { onChoice('customize'); } } }, [TEXTS.btn_customize || I18N.customize || 'Customize']));
 		inner.appendChild(actions);
 
 		box.appendChild(inner);
@@ -185,21 +187,21 @@
 
 		var overlay = el('div', { class: 'ckit-modal-overlay' });
 		var modal = el('div', { class: 'ckit-modal ckit-theme--' + (CFG.theme || 'light'), role: 'dialog', 'aria-modal': 'true' });
-		// Logo del sito nel modale (opzionale, stessa configurazione del banner).
+		// Site logo in the modal (optional, same setting as the banner).
 		if (CFG.showLogo && CFG.logoUrl) {
-			var modalLogo = el('img', { src: CFG.logoUrl, alt: TEXTS.banner_title || 'Logo', class: 'ckit-modal__logo' });
+			var modalLogo = el('img', { src: CFG.logoUrl, alt: TEXTS.banner_title || I18N.logo || 'Logo', class: 'ckit-modal__logo' });
 			if (CFG.logoMaxHeight) modalLogo.style.maxHeight = CFG.logoMaxHeight + 'px';
 			modal.appendChild(modalLogo);
 		}
-		// Titolo modale: usa modal_title se valorizzato, altrimenti riusa banner_title (stesso "Rispettiamo la tua privacy" del banner principale).
-		modal.appendChild(el('h2', { class: 'ckit-modal__title' }, [TEXTS.modal_title || TEXTS.banner_title || 'Le tue preferenze']));
-		// Intro modale con supporto link inline [testo](url): usa modal_intro se valorizzato, altrimenti riusa banner_message (stesso testo del banner principale).
+		// Modal title: modal_title if set, otherwise banner_title.
+		modal.appendChild(el('h2', { class: 'ckit-modal__title' }, [TEXTS.modal_title || TEXTS.banner_title || I18N.yourPreferences || 'Your preferences']));
+		// Modal intro with inline [text](url) links: modal_intro if set, otherwise banner_message.
 		modal.appendChild(el('p', { class: 'ckit-modal__intro', html: richText(TEXTS.modal_intro || TEXTS.banner_message || '') }));
-		// Link Privacy/Cookie sempre visibili nel modale (pattern Cookiebot).
+		// Privacy/Cookie policy links always visible in the modal.
 		modal.appendChild(el('p', { class: 'ckit-modal__links' }, [
-			el('a', { href: CFG.privacyPolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.privacy_link_text || 'Informativa Privacy']),
+			el('a', { href: CFG.privacyPolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.privacy_link_text || I18N.privacyPolicy || 'Privacy Policy']),
 			document.createTextNode(' · '),
-			el('a', { href: CFG.cookiePolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.cookies_link_text || 'Cookie Policy'])
+			el('a', { href: CFG.cookiePolicyUrl || '#', target: '_blank', rel: 'noopener' }, [TEXTS.cookies_link_text || I18N.cookiePolicy || 'Cookie Policy'])
 		]));
 
 		var list = el('div', { class: 'ckit-modal__cats' });
@@ -222,20 +224,21 @@
 				el('p', { class: 'ckit-modal__cat-desc' }, [cat.description || ''])
 			]);
 
-			// Lista cookie sotto la categoria (accordion stile Cookie Script).
+			// Cookie list under each category (accordion).
 			var cookies = COOKIES_BY_CAT[id] || [];
 			if (cookies.length) {
 				var details = el('details', { class: 'ckit-modal__cat-cookies' });
 				var summary = el('summary', { class: 'ckit-modal__cat-cookies-toggle' });
-				summary.innerHTML = '<span class="ckit-arrow" aria-hidden="true">▸</span> ' + (TEXTS.show_cookies_label || 'Mostra cookie') + ' (' + cookies.length + ')';
+				summary.appendChild(el('span', { class: 'ckit-arrow', 'aria-hidden': 'true' }, ['▸']));
+				summary.appendChild(document.createTextNode(' ' + (TEXTS.show_cookies_label || I18N.showCookies || 'Show cookies') + ' (' + cookies.length + ')'));
 				details.appendChild(summary);
 
 				var table = el('table', { class: 'ckit-modal__cookies-table' });
 				var thead = el('thead', null, [el('tr', null, [
-					el('th', null, [TEXTS.col_name || 'Nome']),
-					el('th', null, [TEXTS.col_vendor || 'Fornitore']),
-					el('th', null, [TEXTS.col_duration || 'Durata']),
-					el('th', null, [TEXTS.col_description || 'Finalità'])
+					el('th', null, [TEXTS.col_name || I18N.colName || 'Name']),
+					el('th', null, [TEXTS.col_vendor || I18N.colVendor || 'Provider']),
+					el('th', null, [TEXTS.col_duration || I18N.colDuration || 'Duration']),
+					el('th', null, [TEXTS.col_description || I18N.colDescription || 'Purpose'])
 				])]);
 				table.appendChild(thead);
 				var tbody = el('tbody');
@@ -244,7 +247,7 @@
 					var code = el('code', null, [c.name]);
 					nameCell.appendChild(code);
 					if (c.party) {
-						var badge = el('span', { class: 'ckit-cookie-party ckit-cookie-party--' + c.party }, [c.party === 'first' ? '1ª parte' : '3ª parte']);
+						var badge = el('span', { class: 'ckit-cookie-party ckit-cookie-party--' + c.party }, [c.party === 'first' ? (I18N.firstParty || '1st party') : (I18N.thirdParty || '3rd party')]);
 						nameCell.appendChild(badge);
 					}
 					tbody.appendChild(el('tr', null, [
@@ -264,9 +267,9 @@
 		modal.appendChild(list);
 
 		var actions = el('div', { class: 'ckit-modal__actions' });
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--reject', on: { click: function () { onSave('reject_all', allFalse()); } } }, [TEXTS.btn_reject_all || 'Rifiuta tutti']));
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--accept', on: { click: function () { onSave('accept_all', allTrue()); } } }, [TEXTS.btn_accept_all || 'Accetta tutti']));
-		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--save', on: { click: function () { onSave('customize', readCheckboxes()); } } }, [TEXTS.btn_save || 'Salva preferenze']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--reject', on: { click: function () { onSave('reject_all', allFalse()); } } }, [TEXTS.btn_reject_all || I18N.rejectAll || 'Reject all']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--accept', on: { click: function () { onSave('accept_all', allTrue()); } } }, [TEXTS.btn_accept_all || I18N.acceptAll || 'Accept all']));
+		actions.appendChild(el('button', { type: 'button', class: 'ckit-btn ckit-btn--save', on: { click: function () { onSave('customize', readCheckboxes()); } } }, [TEXTS.btn_save || I18N.savePreferences || 'Save preferences']));
 		modal.appendChild(actions);
 
 		overlay.appendChild(modal);
@@ -304,7 +307,7 @@
 			id: 'ckit-floating',
 			class: 'ckit-floating ckit-floating--' + (CFG.floatingPos || 'bottom-left'),
 			type: 'button',
-			'aria-label': TEXTS.floating_button || 'Gestisci cookie',
+			'aria-label': TEXTS.floating_button || I18N.manageCookies || 'Manage cookies',
 			on: { click: function (e) { e.preventDefault(); openPreferences(); } }
 		}, []);
 		btn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10c0-.39-.04-.77-.08-1.15a3.5 3.5 0 0 1-4.55-4.55A10 10 0 0 0 12 2zm-1.5 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-3 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm6 3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-5 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>';
@@ -320,7 +323,8 @@
 	}
 
 	function start() {
-		// Hook globale: ovunque venga cliccato un elemento con data-ckit-open-prefs, apre il modale.
+		// Global hook: clicking any element with data-ckit-open-prefs opens the modal.
+		// Clicking [data-ckit-load-iframe] in a placeholder loads that single iframe once.
 		document.addEventListener('click', function (e) {
 			var t = e.target.closest('[data-ckit-open-prefs]');
 			if (t) { e.preventDefault(); openPreferences(); }
@@ -344,7 +348,7 @@
 
 		var stored = loadStored();
 		if (stored && stored.consent_uuid) {
-			// Consenso già presente: applica e basta.
+			// Consent already given: just apply it.
 			if (typeof window.CKIT !== 'undefined' && typeof window.CKIT.applyConsent === 'function') {
 				window.CKIT.applyConsent(stored.categories || {});
 			}

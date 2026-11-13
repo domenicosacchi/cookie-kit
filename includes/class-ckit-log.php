@@ -1,7 +1,7 @@
 <?php
 /**
- * Consent log — CRUD per la tabella dei consensi raccolti.
- * Conserva: timestamp, uuid consenso, scelta, categorie attive, hash IP, UA, URL, lingua.
+ * Consent log — CRUD for the table of collected consents.
+ * Stores: timestamp, consent UUID, choice, accepted categories, IP hash, user agent, URL, language.
  *
  * @package CookieKit
  */
@@ -33,7 +33,7 @@ class CKIT_Log {
 		);
 		$row = wp_parse_args( $data, $defaults );
 
-		// Hash IP (no IP in chiaro).
+		// Store only a salted hash of the IP address, never the plain IP.
 		if ( empty( $row['ip_hash'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip            = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 			$row['ip_hash'] = hash( 'sha256', $ip . wp_salt() );
