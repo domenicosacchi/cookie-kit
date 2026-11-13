@@ -1,121 +1,96 @@
 === CookieKit ===
-Contributors: cookiekit
-Tags: cookie, gdpr, cookie banner, consent, garante privacy, consent mode v2
+Contributors: domenicosacchi
+Tags: cookie, cookie banner, consent, consent mode v2, garante privacy
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Consent Management Platform self-hosted, conforme al provvedimento del Garante Privacy n. 231 del 10 giugno 2021.
+Self-hosted cookie consent banner designed around the Italian Garante Privacy guidelines (231/2021) and Google Consent Mode v2.
 
 == Description ==
 
-CookieKit è una Consent Management Platform leggera, self-hosted, libera e gratuita, utilizzabile da qualunque sito WordPress che voglia raccogliere il consenso ai cookie in modo conforme alle linee guida del Garante Privacy italiano e al GDPR. Pensata per editori indipendenti, blog, e-commerce e siti istituzionali che non monetizzano con Google AdSense / Ad Manager (i quali richiedono una CMP certificata IAB TCF v2.2).
+CookieKit is a lightweight, self-hosted cookie consent banner. It is designed around the Italian Data Protection Authority guidelines (Garante Privacy, provvedimento 231/2021, 10 June 2021) and Google Consent Mode v2.
 
-= Caratteristiche =
+This plugin does not provide legal advice and does not by itself guarantee compliance; site owners remain responsible for their cookie policy and configuration.
 
-* Banner conforme al provvedimento Garante Privacy n. 231/2021 con pulsanti "Accetta tutti", "Rifiuta tutti" e "Personalizza" di pari dignità grafica
-* Pulsante "X" di chiusura banner = rifiuto (mai consenso implicito)
-* Auto-blocco di script di terze parti (Google Analytics, GTM, YouTube, Vimeo, Maps, ecc.) finché non c'è consenso
-* Sostituzione iframe con placeholder click-to-load
-* Google Consent Mode v2 Basic (segnali ad_storage, analytics_storage, ad_user_data, ad_personalization, ecc.)
-* Pulsante "Gestisci cookie" persistente nel footer (icona)
-* Re-prompt automatico dopo N giorni (default 180, conforme Garante)
-* Re-prompt forzato quando cambia la versione della policy
-* Log consensi su tabella DB (UUID, azione, categorie, hash IP, UA, URL pagina, lingua, timestamp)
-* Esportazione log in CSV o JSON
-* **Scanner doppio**: passivo server-side (cattura cookie tipo Cloudflare e PHP) + browser client-side multi-pagina (cattura cookie JavaScript come `_ga`, `_fbp`, `VISITOR_PRIVACY_METADATA`, ecc., compresi gli HttpOnly via integrazione `$_COOKIE`)
-* Banner mostra **solo cookie effettivamente rilevati** dallo scanner, raggruppati per categoria con tabella espandibile (Nome · Fornitore · Durata · Finalità) — pattern Cookie Script / Cookiebot
-* Classifier intelligente che riconosce cookie noti via pattern regex e via match di dominio (es. cookie su `.youtube.com` → categoria marketing/YouTube)
-* Pannello admin completo (Impostazioni · Categorie · Vendor · Scanner · Log · Testi)
-* Shortcode `[ckit_button]` per inserire link "Gestisci cookie" in qualsiasi punto
-* Endpoint REST `POST /wp-json/cookiekit/v1/consent`
-* Multi-categoria configurabile
-* Tema light/dark
-* Conforme al provvedimento Garante Privacy 231/2021, GDPR, ePrivacy, Codice Privacy
+= Features =
 
-= Cosa NON include =
+* Banner with "Accept all", "Reject all" and "Customize" buttons, all with the same visual weight.
+* A close button (X). Closing the banner is recorded as a rejection.
+* Preferences modal with one toggle per category. Under each category, a table of the cookies the scanner found (name, provider, duration, purpose, first/third party).
+* Floating "Manage cookies" button, the `[ckit_button]` shortcode, and the `data-ckit-open-prefs` attribute to reopen the preferences.
+* Consent stored in the first-party `ckit_consent` cookie. The banner comes back after N days (default 180) or when you change the policy version.
+* Auto-blocking: enqueued scripts that match a configured vendor stay inactive until consent. Matching iframes in post content become click-to-load placeholders.
+* Google Consent Mode v2: a `default` command with denied signals early in `<head>`, then an `update` command after the visitor's choice.
+* Browser scan and passive server-side scan. The banner lists only the cookies actually found.
+* Consent log (UUID, action, categories, policy version, page URL, language, truncated user agent, salted IP hash) with CSV/JSON export and automatic retention cleanup.
+* Default vendors: Google Analytics 4, Google Tag Manager, Google Ads / DoubleClick, YouTube Embed, Vimeo, Google Maps, Cloudflare. All of them can be edited.
+* English and Italian translations included.
+* No requests to external services.
 
-* IAB TCF v2.2 (richiede registrazione formale presso IAB Europe come CMP, non gestita)
-* Google AdSense / Ad Manager personalizzato richiede CMP certificata IAB. Senza certificazione la pubblicità Google sarà non personalizzata (NPA)
+= What it does not do =
+
+* It is not an IAB TCF CMP. Google requires a Google-certified CMP integrated with the TCF for personalized ads with AdSense, Ad Manager or AdMob in the EEA, UK and Switzerland.
+* Scripts not loaded with `wp_enqueue_script` and iframes outside post content are not blocked automatically. You can mark scripts by hand with `type="text/plain" data-ckit-category="…"`.
+
+Full documentation: https://github.com/domenicosacchi/cookie-kit
 
 == Installation ==
 
-1. Carica la cartella `cookie-kit` nella directory `/wp-content/plugins/`
-2. Attiva il plugin dal menu "Plugin" di WordPress
-3. Vai su "Cookie Consent" nel menu admin per configurare
-4. Esegui la prima scansione dal tab "Scanner"
-5. Configura i vendor del tuo sito nel tab "Vendor"
-6. Personalizza i testi nel tab "Testi e aspetto"
+1. Upload the `cookie-kit` folder to `/wp-content/plugins/`.
+2. Activate the plugin in the "Plugins" menu.
+3. Go to "Cookie Consent" in the admin menu.
+4. Set the privacy policy and cookie policy URLs in "Settings".
+5. Check the vendors in "Vendors".
+6. Run the browser scan in "Scanner".
+7. Adjust the texts in "Texts" if needed.
 
 == Frequently Asked Questions ==
 
-= Il plugin è conforme al GDPR? =
+= Does CookieKit make my site GDPR compliant? =
 
-Sì, il plugin implementa i requisiti del Regolamento (UE) 2016/679 (GDPR), del provvedimento del Garante Privacy n. 231 del 10 giugno 2021 e della Direttiva ePrivacy. Le scelte dell'utente sono documentate (UUID, timestamp, versione policy, scelte). La conformità complessiva del sito dipende anche dalla corretta configurazione dei vendor e dalle policy testuali pubblicate.
+No plugin can guarantee that by itself. CookieKit provides a banner, prior blocking, consent records and Consent Mode signals. Compliance also depends on your configuration, on the services you use and on your policies. This plugin does not provide legal advice.
 
-= Posso usare Google AdSense con questo plugin? =
+= Can I use it with Google AdSense? =
 
-Tecnicamente sì, ma Google dal 16 gennaio 2024 richiede una CMP certificata IAB TCF v2.2 per servire annunci personalizzati nello SEE. Senza certificazione, AdSense mostrerà solo annunci non personalizzati (NPA) con CPM tipicamente più basso. Per i siti che monetizzano principalmente con affiliate marketing e usano Google solo per Analytics/GTM, il plugin è perfetto.
+Not for personalized ads in the EEA, the UK or Switzerland. Those require a Google-certified CMP integrated with the IAB TCF, which CookieKit is not.
 
-= Come funziona l'auto-blocco script? =
+= How does auto-blocking work? =
 
-Il plugin filtra l'output WordPress (hook `script_loader_tag`) e sostituisce gli script di tracciamento conosciuti (configurati nel tab Vendor) con `<script type="text/plain" data-ckit-src="...">`. Quando l'utente acconsente, JavaScript riconverte questi tag in script attivi.
+Scripts enqueued through WordPress whose URL matches a vendor's pattern or host are printed as `<script type="text/plain" data-ckit-src="…">`. After consent, CookieKit turns them back into active scripts. Matching iframes in post content are replaced with a click-to-load placeholder.
 
-= I log sono conformi al GDPR? =
+= Is the IP address stored? =
 
-Sì. L'IP non viene salvato in chiaro ma in forma di hash SHA-256 con salt. La user-agent string è troncata a 500 caratteri. La retention default è 1825 giorni (5 anni) — modificabile dalle impostazioni.
+No. The log stores a salted SHA-256 hash of the IP address, never the address itself. Log entries older than the retention period (default 1825 days) are deleted daily.
+
+= How do I ask every visitor for consent again? =
+
+Change the policy version in Settings.
 
 == Screenshots ==
 
-1. Banner principale
-2. Modale di personalizzazione preferenze
-3. Pannello admin — Impostazioni
-4. Pannello admin — Scanner cookie
-5. Pannello admin — Log consensi
+1. Banner
+2. Preferences modal
+3. Admin: Settings
+4. Admin: Scanner
+5. Admin: Consent log
 
 == Changelog ==
 
-= 1.1.2 =
-* Scanner client-side ora cattura anche cookie HttpOnly (PHPSESSID, ecc.) integrando `$_COOKIE` lato server con la lista da `document.cookie`.
+= 1.2.0 =
+* Security and data-handling fixes: settings sanitization, REST input validation, scanner limited to the site's own URLs, safe CSV export, escaping fixes.
+* Fix: unchecking a checkbox in Settings had no effect.
+* Fix: Consent Mode "update" was not sent when auto-blocking was disabled.
+* Fix: the scanner listed every configured vendor's cookies on every page.
+* English source strings and comments, Italian translation included. Default texts follow the site language. Texts saved by earlier versions are kept.
+* Neutral legal wording, GPL-2.0 license file, documentation.
 
-= 1.1.1 =
-* Modalità snapshot: blocker e iframe-replacement disattivati durante la scansione browser così script terzi e iframe si caricano nativi.
-* Snapshot multi-pagina: home + 2 pagine + 2 post random.
-* Classifier ora matcha anche per dominio del cookie con host del vendor (es. `.youtube.com` auto-classificato come YouTube).
-* Aggiunto `VISITOR_PRIVACY_METADATA` al dizionario meta e al vendor YouTube preimpostato.
-
-= 1.1.0 =
-* Scanner browser client-side: pulsante "▶ Avvia scansione browser" nel tab Scanner. JS cattura `document.cookie` dopo aver simulato accept all e attesa script di tracking.
-* Endpoint REST `POST /cookiekit/v1/snapshot` protetto da `manage_options`.
-* Banner ora mostra **solo cookie reali** della tabella scan (non più dichiarati staticamente nei vendor).
-
-= 1.0.3 =
-* Ridotti vendor preimpostati ai 6 più universali (GA4, GTM, YouTube, Vimeo, Maps, Cloudflare). Rimossi Microsoft Clarity, Hotjar, Facebook Pixel per evitare informativa fuorviante quando non in uso.
-
-= 1.0.2 =
-* Banner: sotto ogni categoria del modale di personalizzazione c'è ora un toggle "▸ Mostra cookie (N)" con tabella espandibile (Nome · Fornitore · Durata · Finalità). Pattern Cookie Script / iubenda.
-* Aggiunto dizionario interno con metadata di ~30 cookie noti (durata + descrizione in italiano).
-* Badge 1ª/3ª parte sui cookie nel modale.
-
-= 1.0.1 =
-* Classifier riconosce cookie Cloudflare (`__cf_bm`, `__cflb`, `cf_clearance`, ...) come tecnici/necessary.
-* Classifier riconosce token CSRF/sicurezza form (`_csrf`, `XSRF-TOKEN`, ...) come tecnici.
-* Classifier riconosce cookie WooCommerce (`woocommerce_*`, `wc_*`) come tecnici.
-* Aggiunto Cloudflare ai vendor preimpostati.
-
-= 1.0.0 =
-* Prima release. Banner, auto-blocco, scanner passivo, log, Consent Mode v2, pannello admin completo, REST endpoint, shortcode.
+See CHANGELOG.md for the full history.
 
 == Upgrade Notice ==
 
-= 1.1.2 =
-Cattura PHPSESSID e altri cookie HttpOnly. Aggiornamento consigliato.
-
-= 1.1.0 =
-Aggiunge scanner browser client-side: il banner ora mostra cookie reali del sito invece che lista statica.
-
-= 1.0.0 =
-Prima versione del plugin.
+= 1.2.0 =
+Security and bug fixes. Saved settings and texts are kept. After updating, open Settings and check the checkboxes before saving: they now show and store the value actually in use.
