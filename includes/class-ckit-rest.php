@@ -98,15 +98,9 @@ class CKIT_Rest {
 			)
 		);
 
-		if ( empty( $all ) ) {
-			return new WP_REST_Response(
-				array( 'ok' => false, 'error' => 'no_cookies' ),
-				400
-			);
-		}
-
+		// A page without first-party cookies is a valid result: keep scanning (vendor enrichment below).
 		$scanner = CKIT_Core::instance()->scanner;
-		$saved   = $scanner->save_snapshot( $all, $page );
+		$saved   = $all ? $scanner->save_snapshot( $all, $page ) : 0;
 
 		// Vendor catalog enrichment: detect third-party vendors in the page HTML
 		// (YouTube iframes, GTM scripts, Vimeo embeds) and add their known cookies as third-party.

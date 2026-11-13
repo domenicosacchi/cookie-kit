@@ -21,6 +21,7 @@ First public release on GitHub.
 - An expired consent, or one given under an older policy version, could still send "granted" Consent Mode signals on page load.
 - The scanner's HTML enrichment listed every configured vendor's cookies on every page, because it matched the plugin's own configuration and Consent Mode snippet.
 - Admin-only WordPress cookies (`wp-settings-*`, `wordpress_test_cookie`) were saved by the browser scan.
+- The browser scan stopped with a `no_cookies` error on a page without first-party cookies; such a page is now a valid result.
 - The CSV export broke columns when a value contained a comma.
 - `dns-prefetch` / `preconnect` hints for blocked hosts are removed, so the browser does not contact those hosts before consent.
 - Uninstall now cleans every site of a multisite network.
