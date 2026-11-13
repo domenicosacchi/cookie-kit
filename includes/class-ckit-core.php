@@ -213,8 +213,9 @@ class CKIT_Core {
 
 	/**
 	 * Snapshot mode: ?ckit-snapshot=1 and a logged-in administrator.
-	 * In this mode the banner and the blocker are disabled, third-party scripts run natively
-	 * and the snapshot script reads the full document.cookie.
+	 * In this mode the blocker is disabled and Consent Mode defaults are granted, so third-party
+	 * scripts run natively and the snapshot script reads the full document.cookie. The banner is
+	 * still rendered.
 	 */
 	public static function is_snapshot_mode() {
 		// phpcs:ignore WordPress.Security.NonceVerification

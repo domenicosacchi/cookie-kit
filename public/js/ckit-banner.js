@@ -36,6 +36,19 @@
 		try { return JSON.parse(raw); } catch (e) { return null; }
 	}
 
+	// Placeholder markup can come from post content written by non-admin users, so its
+	// iframe URL must never be trusted: only http(s) URLs may become an iframe src
+	// (blocks javascript:, data: and similar schemes).
+	function safeIframeSrc(src) {
+		if (!src) return null;
+		try {
+			var u = new URL(src, location.href);
+			return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
 	function loadStored() {
 		var raw = readCookie(COOKIE);
 		var data = parse(raw);
@@ -65,7 +78,10 @@
 		try {
 			fetch(CFG.restUrl, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': CFG.restNonce },
+				// No X-WP-Nonce: the route is public, and a nonce baked into a cached page expires
+				// after 12-24 h, after which WordPress rejects the request with 403 for logged-out
+				// visitors and the consent would never reach the log.
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					action: action,
 					categories: Object.keys(categories).filter(function (k) { return categories[k]; }),
@@ -331,8 +347,8 @@
 			var ift = e.target.closest('[data-ckit-load-iframe]');
 			if (ift) {
 				var ph = ift.closest('.ckit-iframe-placeholder');
-				if (ph) {
-					var src = ph.getAttribute('data-ckit-iframe-src');
+				var src = ph ? safeIframeSrc(ph.getAttribute('data-ckit-iframe-src') || '') : null;
+				if (src) {
 					var iframe = document.createElement('iframe');
 					iframe.src = src;
 					iframe.setAttribute('frameborder', '0');

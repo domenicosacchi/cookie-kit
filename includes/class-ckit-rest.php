@@ -4,7 +4,8 @@
  *
  * POST /wp-json/cookiekit/v1/consent   (public: records a consent choice in the log)
  *   body: { action, categories, page_url, language, consent_uuid }
- *   header: X-WP-Nonce (wp_rest), checked by WordPress only for logged-in users
+ *   no X-WP-Nonce: WordPress rejects an expired nonce with 403 even for logged-out visitors,
+ *   and nonces cached in page HTML do expire, so the banner does not send one
  *
  * POST /wp-json/cookiekit/v1/snapshot  (manage_options: client-side cookie scanner)
  *   body: { cookies: [ "name", ... ], page_url }

@@ -44,7 +44,8 @@ class CKIT_Banner {
 			'consentModeV2'     => (bool) CKIT_Core::settings( 'consent_mode_v2', 1 ),
 			'policyVersion'     => CKIT_Core::settings( 'policy_version', '1.0' ),
 			'restUrl'           => esc_url_raw( rest_url( 'cookiekit/v1/consent' ) ),
-			'restNonce'         => wp_create_nonce( 'wp_rest' ),
+			// No REST nonce: the consent route is public, and a nonce cached in the page HTML
+			// expires and makes WordPress reject the request (403) for logged-out visitors.
 			// The vendor list is not sent to the browser: the JS does not use it, and printing it
 			// made the scanner's HTML enrichment "detect" every configured vendor on every page.
 			'categories'        => CKIT_Core::categories(),
@@ -223,7 +224,7 @@ gtag('set', 'url_passthrough', true);
 
 	public function render() {
 		// The banner is built by ckit-banner.js inside this container.
-		// In snapshot mode the snapshot script works without banner interference.
+		// It is also rendered in snapshot mode: only the blocker is disabled there.
 		echo '<div id="ckit-root" aria-hidden="true"></div>';
 	}
 
@@ -279,13 +280,29 @@ gtag('set', 'url_passthrough', true);
 			$out['necessary'][] = array(
 				'name'        => CKIT_CONSENT_COOKIE,
 				'vendor'      => __( 'Site', 'cookie-kit' ),
-				'duration'    => __( '6 months', 'cookie-kit' ),
+				'duration'    => $this->consent_cookie_duration(),
 				'description' => __( 'Stores the cookie preferences expressed by the user.', 'cookie-kit' ),
 				'party'       => 'first',
 			);
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Lifetime of the consent cookie as shown to visitors. The cookie lasts reprompt_days,
+	 * so a fixed "6 months" label was wrong whenever the admin changed that setting.
+	 * The default (183 days) keeps the "6 months" label.
+	 *
+	 * @return string
+	 */
+	private function consent_cookie_duration() {
+		$days = absint( CKIT_Core::settings( 'reprompt_days', CKIT_REPROMPT_DAYS ) );
+		if ( ! $days || CKIT_REPROMPT_DAYS === $days ) {
+			return __( '6 months', 'cookie-kit' );
+		}
+		/* translators: %d: number of days the consent cookie is kept. */
+		return sprintf( _n( '%d day', '%d days', $days, 'cookie-kit' ), $days );
 	}
 
 	private function has_cookie( $list, $name ) {
@@ -333,7 +350,7 @@ gtag('set', 'url_passthrough', true);
 			'wordpress_sec_*'          => array( 'duration' => $session, 'description' => __( 'Security cookie for the reserved area.', 'cookie-kit' ) ),
 			'wp-settings-*'            => array( 'duration' => __( '1 year', 'cookie-kit' ), 'description' => __( 'Stores WordPress dashboard preferences.', 'cookie-kit' ) ),
 			'wp-settings-time-*'       => array( 'duration' => __( '1 year', 'cookie-kit' ), 'description' => __( 'Timestamp of WordPress dashboard preferences.', 'cookie-kit' ) ),
-			'ckit_consent'             => array( 'duration' => __( '6 months', 'cookie-kit' ), 'description' => __( 'Stores the cookie preferences expressed by the user.', 'cookie-kit' ) ),
+			'ckit_consent'             => array( 'duration' => $this->consent_cookie_duration(), 'description' => __( 'Stores the cookie preferences expressed by the user.', 'cookie-kit' ) ),
 			// Cloudflare.
 			'__cf_bm'                  => array( 'duration' => __( '30 minutes', 'cookie-kit' ), 'description' => __( 'Cloudflare Bot Management: distinguishes human traffic from bots.', 'cookie-kit' ) ),
 			'__cflb'                   => array( 'duration' => __( '1 day', 'cookie-kit' ), 'description' => __( 'Cloudflare Load Balancing.', 'cookie-kit' ) ),

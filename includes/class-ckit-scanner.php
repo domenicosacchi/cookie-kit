@@ -231,7 +231,12 @@ class CKIT_Scanner {
 		}
 		// Ignore CookieKit's own inline scripts (Consent Mode snippet with gtag(), localized config):
 		// otherwise vendor patterns such as "gtag" would match on every page.
-		$body = preg_replace( '#<script[^>]*\sid=["\']ckit-[^"\']*["\'][^>]*>.*?</script>#is', '', $body );
+		$stripped = preg_replace( '#<script[^>]*\sid=["\']ckit-[^"\']*["\'][^>]*>.*?</script>#is', '', $body );
+		// preg_replace() returns null on a PCRE error (e.g. backtrack limit on a large page):
+		// keep the original body rather than silently matching nothing.
+		if ( null !== $stripped ) {
+			$body = $stripped;
+		}
 
 		global $wpdb;
 		$table   = $this->table();

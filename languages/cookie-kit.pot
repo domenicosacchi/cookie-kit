@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: CookieKit 1.2.0\n"
+"Project-Id-Version: CookieKit 1.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/domenicosacchi/cookie-kit/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T19:31:02+00:00\n"
+"POT-Creation-Date: 2026-11-13T21:00:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: cookie-kit\n"
@@ -46,7 +46,7 @@ msgid "Settings"
 msgstr ""
 
 #: admin/class-ckit-admin.php:141
-#: admin/class-ckit-admin.php:529
+#: admin/class-ckit-admin.php:532
 msgid "Categories"
 msgstr ""
 
@@ -110,772 +110,781 @@ msgstr ""
 msgid "Re-prompt (days)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:224
-msgid "After how many days the banner is shown again. Default 180 (the Garante Privacy guidelines indicate at least 6 months)."
+#. translators: %d: default number of days before the banner is shown again.
+#: admin/class-ckit-admin.php:226
+#, php-format
+msgid "After how many days the banner is shown again. Default %d (the Garante Privacy guidelines indicate at least 6 months)."
 msgstr ""
 
-#: admin/class-ckit-admin.php:227
+#: admin/class-ckit-admin.php:230
 msgid "Log retention (days)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:231
+#: admin/class-ckit-admin.php:234
 msgid "Current policy version"
 msgstr ""
 
-#: admin/class-ckit-admin.php:232
+#: admin/class-ckit-admin.php:235
 msgid "Change it to show the banner again to visitors who consented under an older version"
 msgstr ""
 
-#: admin/class-ckit-admin.php:235
+#: admin/class-ckit-admin.php:238
 msgid "Privacy Policy URL"
 msgstr ""
 
-#: admin/class-ckit-admin.php:236
-#: admin/class-ckit-admin.php:240
+#: admin/class-ckit-admin.php:239
+#: admin/class-ckit-admin.php:243
 msgid "Empty = default path shown as placeholder."
 msgstr ""
 
-#: admin/class-ckit-admin.php:239
+#: admin/class-ckit-admin.php:242
 msgid "Cookie Policy URL"
 msgstr ""
 
-#: admin/class-ckit-admin.php:243
+#: admin/class-ckit-admin.php:246
 msgid "Banner position"
 msgstr ""
 
-#: admin/class-ckit-admin.php:248
+#: admin/class-ckit-admin.php:251
 msgid "modal"
 msgstr ""
 
-#: admin/class-ckit-admin.php:253
+#: admin/class-ckit-admin.php:256
 msgid "Banner layout"
 msgstr ""
 
-#: admin/class-ckit-admin.php:256
+#: admin/class-ckit-admin.php:259
 msgid "Bar — full-width strip"
 msgstr ""
 
-#: admin/class-ckit-admin.php:257
+#: admin/class-ckit-admin.php:260
 msgid "Box — centered box"
 msgstr ""
 
-#: admin/class-ckit-admin.php:262
+#: admin/class-ckit-admin.php:265
 msgid "Theme"
 msgstr ""
 
-#: admin/class-ckit-admin.php:271
+#: admin/class-ckit-admin.php:274
 msgid "Primary color"
 msgstr ""
 
-#: admin/class-ckit-admin.php:275
+#: admin/class-ckit-admin.php:278
 msgid "\"Accept\" color"
 msgstr ""
 
-#: admin/class-ckit-admin.php:279
+#: admin/class-ckit-admin.php:282
 msgid "\"Reject\" color"
 msgstr ""
 
-#: admin/class-ckit-admin.php:283
+#: admin/class-ckit-admin.php:286
 msgid "Show logo in the banner"
 msgstr ""
 
-#: admin/class-ckit-admin.php:285
+#: admin/class-ckit-admin.php:288
 msgid "Display the site logo above the banner title and in the preferences modal"
 msgstr ""
 
-#: admin/class-ckit-admin.php:288
+#: admin/class-ckit-admin.php:291
 msgid "Logo URL"
 msgstr ""
 
-#: admin/class-ckit-admin.php:292
+#: admin/class-ckit-admin.php:295
 msgid "Upload / choose from the Media Library"
 msgstr ""
 
-#: admin/class-ckit-admin.php:293
-#: admin/class-ckit-admin.php:411
-#: admin/class-ckit-admin.php:430
+#: admin/class-ckit-admin.php:296
+#: admin/class-ckit-admin.php:414
+#: admin/class-ckit-admin.php:433
 msgid "Remove"
 msgstr ""
 
-#: admin/class-ckit-admin.php:295
+#: admin/class-ckit-admin.php:298
 msgid "Recommended: PNG/SVG with a transparent background, about 80-120px high, landscape format."
 msgstr ""
 
-#: admin/class-ckit-admin.php:302
+#: admin/class-ckit-admin.php:305
 msgid "Max logo height (px)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:303
+#: admin/class-ckit-admin.php:306
 msgid "Maximum logo height in the banner. Default 56px."
 msgstr ""
 
-#: admin/class-ckit-admin.php:319
+#: admin/class-ckit-admin.php:322
 msgid "Choose a logo for the cookie banner"
 msgstr ""
 
-#: admin/class-ckit-admin.php:320
+#: admin/class-ckit-admin.php:323
 msgid "Use this logo"
 msgstr ""
 
-#: admin/class-ckit-admin.php:352
+#: admin/class-ckit-admin.php:355
 msgid "Categories define how users can choose which cookies to accept. The \"necessary\" category is always active and cannot be disabled."
 msgstr ""
 
-#: admin/class-ckit-admin.php:353
+#: admin/class-ckit-admin.php:356
 msgid "Leave a field empty to use the default text (shown as placeholder), translated into the site language."
 msgstr ""
 
-#: admin/class-ckit-admin.php:357
+#: admin/class-ckit-admin.php:360
 msgid "ID"
 msgstr ""
 
-#: admin/class-ckit-admin.php:358
-#: admin/class-ckit-admin.php:389
-#: includes/class-ckit-banner.php:64
+#: admin/class-ckit-admin.php:361
+#: admin/class-ckit-admin.php:392
+#: includes/class-ckit-banner.php:65
 msgid "Name"
 msgstr ""
 
-#: admin/class-ckit-admin.php:359
+#: admin/class-ckit-admin.php:362
 msgid "Description"
 msgstr ""
 
-#: admin/class-ckit-admin.php:360
+#: admin/class-ckit-admin.php:363
 msgid "Required"
 msgstr ""
 
-#: admin/class-ckit-admin.php:374
+#: admin/class-ckit-admin.php:377
 msgid "Save categories"
 msgstr ""
 
-#: admin/class-ckit-admin.php:385
+#: admin/class-ckit-admin.php:388
 msgid "Third-party vendors. The \"pattern\" regex matches the scripts to block; \"host\" is the vendor's domain; \"cookies\" is the comma-separated list of cookie names the vendor sets (wildcard * supported)."
 msgstr ""
 
-#: admin/class-ckit-admin.php:390
-#: admin/class-ckit-admin.php:477
+#: admin/class-ckit-admin.php:393
+#: admin/class-ckit-admin.php:480
 msgid "Category"
 msgstr ""
 
-#: admin/class-ckit-admin.php:391
+#: admin/class-ckit-admin.php:394
 msgid "Host"
 msgstr ""
 
-#: admin/class-ckit-admin.php:392
+#: admin/class-ckit-admin.php:395
 msgid "Pattern (regex)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:393
+#: admin/class-ckit-admin.php:396
 msgid "Cookie (CSV)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:416
+#: admin/class-ckit-admin.php:419
 msgid "Add vendor"
 msgstr ""
 
-#: admin/class-ckit-admin.php:417
+#: admin/class-ckit-admin.php:420
 msgid "Save vendors"
 msgstr ""
 
-#: admin/class-ckit-admin.php:448
+#: admin/class-ckit-admin.php:451
 msgid "★ Browser scan (recommended)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:449
+#: admin/class-ckit-admin.php:452
 msgid "Opens the site home page in a new tab with a script that simulates accepting cookies and captures every cookie actually set in the browser, including those set client-side by JavaScript such as Google Analytics, GTM, Meta Pixel, etc. This is the most accurate scan."
 msgstr ""
 
-#: admin/class-ckit-admin.php:451
+#: admin/class-ckit-admin.php:454
 msgid "Start browser scan"
 msgstr ""
 
-#: admin/class-ckit-admin.php:454
+#: admin/class-ckit-admin.php:457
 msgid "When the new tab opens, let the script work: it waits about 5 seconds on each page (home + up to 2 pages + 2 posts) and shows an overlay at the top right. When it is done, come back here and reload the page to see the updated cookies in the table."
 msgstr ""
 
-#: admin/class-ckit-admin.php:458
+#: admin/class-ckit-admin.php:461
 msgid "Passive server-side scan"
 msgstr ""
 
-#: admin/class-ckit-admin.php:459
+#: admin/class-ckit-admin.php:462
 msgid "Server-side HTTP requests to identify cookies set before JavaScript runs (Cloudflare, PHP session, frameworks). It does not replace the browser scan; it complements it."
 msgstr ""
 
-#: admin/class-ckit-admin.php:463
+#: admin/class-ckit-admin.php:466
 msgid "Run passive scan"
 msgstr ""
 
-#: admin/class-ckit-admin.php:468
+#: admin/class-ckit-admin.php:471
 msgid "Clear all results"
 msgstr ""
 
-#: admin/class-ckit-admin.php:475
+#: admin/class-ckit-admin.php:478
 msgid "Cookie"
 msgstr ""
 
-#: admin/class-ckit-admin.php:476
+#: admin/class-ckit-admin.php:479
 msgid "Domain"
 msgstr ""
 
-#: admin/class-ckit-admin.php:478
+#: admin/class-ckit-admin.php:481
 msgid "Party"
 msgstr ""
 
-#: admin/class-ckit-admin.php:479
+#: admin/class-ckit-admin.php:482
 msgid "Vendor"
 msgstr ""
 
-#: admin/class-ckit-admin.php:480
-#: includes/class-ckit-banner.php:66
+#: admin/class-ckit-admin.php:483
+#: includes/class-ckit-banner.php:67
 msgid "Duration"
 msgstr ""
 
-#: admin/class-ckit-admin.php:481
+#: admin/class-ckit-admin.php:484
 msgid "Found on"
 msgstr ""
 
-#: admin/class-ckit-admin.php:499
+#: admin/class-ckit-admin.php:502
 msgid "No scan run yet."
 msgstr ""
 
-#: admin/class-ckit-admin.php:513
+#: admin/class-ckit-admin.php:516
 msgid "total consents"
 msgstr ""
 
-#: admin/class-ckit-admin.php:514
+#: admin/class-ckit-admin.php:517
 msgid "accept all"
 msgstr ""
 
-#: admin/class-ckit-admin.php:515
+#: admin/class-ckit-admin.php:518
 msgid "reject all"
 msgstr ""
 
-#: admin/class-ckit-admin.php:516
+#: admin/class-ckit-admin.php:519
 msgid "customized"
 msgstr ""
 
-#: admin/class-ckit-admin.php:519
+#: admin/class-ckit-admin.php:522
 msgid "Export CSV"
 msgstr ""
 
-#: admin/class-ckit-admin.php:520
+#: admin/class-ckit-admin.php:523
 msgid "Export JSON"
 msgstr ""
 
-#: admin/class-ckit-admin.php:526
+#: admin/class-ckit-admin.php:529
 msgid "Date/time (UTC)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:528
+#: admin/class-ckit-admin.php:531
 msgid "Action"
 msgstr ""
 
-#: admin/class-ckit-admin.php:530
+#: admin/class-ckit-admin.php:533
 msgid "Policy version"
 msgstr ""
 
-#: admin/class-ckit-admin.php:531
+#: admin/class-ckit-admin.php:534
 msgid "Page"
 msgstr ""
 
-#: admin/class-ckit-admin.php:561
+#: admin/class-ckit-admin.php:564
 msgid "Leave a field empty to use the default text (shown as placeholder), translated into the site language. In the messages you can add links with the syntax [link text](https://example.com/page/)."
 msgstr ""
 
-#: admin/class-ckit-admin.php:565
+#: admin/class-ckit-admin.php:568
 msgid "Banner title"
 msgstr ""
 
-#: admin/class-ckit-admin.php:566
+#: admin/class-ckit-admin.php:569
 msgid "Banner message"
 msgstr ""
 
-#: admin/class-ckit-admin.php:567
+#: admin/class-ckit-admin.php:570
 msgid "\"Accept all\" button"
 msgstr ""
 
-#: admin/class-ckit-admin.php:568
+#: admin/class-ckit-admin.php:571
 msgid "\"Reject all\" button"
 msgstr ""
 
-#: admin/class-ckit-admin.php:569
+#: admin/class-ckit-admin.php:572
 msgid "\"Customize\" button"
 msgstr ""
 
-#: admin/class-ckit-admin.php:570
+#: admin/class-ckit-admin.php:573
 msgid "\"Save preferences\" button"
 msgstr ""
 
-#: admin/class-ckit-admin.php:571
+#: admin/class-ckit-admin.php:574
 msgid "\"Close\" button"
 msgstr ""
 
-#: admin/class-ckit-admin.php:572
+#: admin/class-ckit-admin.php:575
 msgid "Preferences modal title (empty = use Banner title)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:573
+#: admin/class-ckit-admin.php:576
 msgid "Preferences modal intro (empty = use Banner message)"
 msgstr ""
 
-#: admin/class-ckit-admin.php:574
+#: admin/class-ckit-admin.php:577
 msgid "Footer button label"
 msgstr ""
 
-#: admin/class-ckit-admin.php:575
+#: admin/class-ckit-admin.php:578
 msgid "Privacy link label"
 msgstr ""
 
-#: admin/class-ckit-admin.php:576
+#: admin/class-ckit-admin.php:579
 msgid "Cookie Policy link label"
 msgstr ""
 
-#: admin/class-ckit-admin.php:593
+#: admin/class-ckit-admin.php:596
 msgid "Save texts"
 msgstr ""
 
-#: admin/class-ckit-admin.php:603
-#: admin/class-ckit-admin.php:614
-#: admin/class-ckit-admin.php:624
-#: admin/class-ckit-admin.php:644
-#: admin/class-ckit-admin.php:671
-#: admin/class-ckit-admin.php:709
+#: admin/class-ckit-admin.php:606
+#: admin/class-ckit-admin.php:617
+#: admin/class-ckit-admin.php:627
+#: admin/class-ckit-admin.php:647
+#: admin/class-ckit-admin.php:674
+#: admin/class-ckit-admin.php:712
 msgid "You do not have permission to perform this action."
 msgstr ""
 
-#: includes/class-ckit-banner.php:54
+#: includes/class-ckit-banner.php:55
 #: includes/class-ckit-core.php:176
 msgid "Close"
 msgstr ""
 
-#: includes/class-ckit-banner.php:55
+#: includes/class-ckit-banner.php:56
 msgid "Logo"
 msgstr ""
 
-#: includes/class-ckit-banner.php:56
+#: includes/class-ckit-banner.php:57
 #: includes/class-ckit-core.php:180
 msgid "Privacy Policy"
 msgstr ""
 
-#: includes/class-ckit-banner.php:57
+#: includes/class-ckit-banner.php:58
 #: includes/class-ckit-core.php:181
 msgid "Cookie Policy"
 msgstr ""
 
-#: includes/class-ckit-banner.php:58
+#: includes/class-ckit-banner.php:59
 #: includes/class-ckit-core.php:172
 msgid "Accept all"
 msgstr ""
 
-#: includes/class-ckit-banner.php:59
+#: includes/class-ckit-banner.php:60
 #: includes/class-ckit-core.php:173
 msgid "Reject all"
 msgstr ""
 
-#: includes/class-ckit-banner.php:60
+#: includes/class-ckit-banner.php:61
 #: includes/class-ckit-core.php:174
 msgid "Customize"
 msgstr ""
 
-#: includes/class-ckit-banner.php:61
+#: includes/class-ckit-banner.php:62
 #: includes/class-ckit-core.php:175
 msgid "Save preferences"
 msgstr ""
 
-#: includes/class-ckit-banner.php:62
+#: includes/class-ckit-banner.php:63
 msgid "Your preferences"
 msgstr ""
 
-#: includes/class-ckit-banner.php:63
+#: includes/class-ckit-banner.php:64
 msgid "Show cookies"
 msgstr ""
 
-#: includes/class-ckit-banner.php:65
+#: includes/class-ckit-banner.php:66
 msgid "Provider"
 msgstr ""
 
-#: includes/class-ckit-banner.php:67
+#: includes/class-ckit-banner.php:68
 msgid "Purpose"
 msgstr ""
 
-#: includes/class-ckit-banner.php:68
+#: includes/class-ckit-banner.php:69
 msgid "1st party"
 msgstr ""
 
-#: includes/class-ckit-banner.php:69
+#: includes/class-ckit-banner.php:70
 msgid "3rd party"
 msgstr ""
 
-#: includes/class-ckit-banner.php:70
-#: includes/class-ckit-banner.php:405
+#: includes/class-ckit-banner.php:71
+#: includes/class-ckit-banner.php:422
 #: includes/class-ckit-core.php:179
 msgid "Manage cookies"
 msgstr ""
 
 #. translators: Status shown when the browser scan starts.
-#: includes/class-ckit-banner.php:142
+#: includes/class-ckit-banner.php:143
 msgid "Starting..."
 msgstr ""
 
 #. translators: 1: current page number, 2: total pages.
-#: includes/class-ckit-banner.php:144
+#: includes/class-ckit-banner.php:145
 #, php-format
 msgid "Page %1$s / %2$s"
 msgstr ""
 
 #. translators: 1: page number, 2: seconds to wait.
-#: includes/class-ckit-banner.php:146
+#: includes/class-ckit-banner.php:147
 #, php-format
 msgid "Loading page %1$s. Waiting %2$ss for tracking scripts..."
 msgstr ""
 
 #. translators: 1: page number, 2: elapsed seconds, 3: total seconds.
-#: includes/class-ckit-banner.php:148
+#: includes/class-ckit-banner.php:149
 #, php-format
 msgid "Page %1$s — waiting for cookies (%2$ss / %3$ss)"
 msgstr ""
 
 #. translators: 1: page number, 2: number of cookies found.
-#: includes/class-ckit-banner.php:150
+#: includes/class-ckit-banner.php:151
 #, php-format
 msgid "Page %1$s — found %2$s cookies. Sending to the server..."
 msgstr ""
 
 #. translators: 1: total cookies saved, 2: number of pages.
-#: includes/class-ckit-banner.php:152
+#: includes/class-ckit-banner.php:153
 #, php-format
 msgid "Snapshot completed — %1$s cookies saved in total across %2$s pages."
 msgstr ""
 
 #. translators: %s: page number.
-#: includes/class-ckit-banner.php:154
+#: includes/class-ckit-banner.php:155
 #, php-format
 msgid "Page %s done. Moving to the next one in 1s..."
 msgstr ""
 
-#: includes/class-ckit-banner.php:155
+#: includes/class-ckit-banner.php:156
 msgid "Back to the scanner panel"
 msgstr ""
 
 #. translators: %s: error code or message.
-#: includes/class-ckit-banner.php:157
+#: includes/class-ckit-banner.php:158
 #, php-format
 msgid "Send error: %s"
 msgstr ""
 
-#: includes/class-ckit-banner.php:158
+#: includes/class-ckit-banner.php:159
 msgid "invalid response"
 msgstr ""
 
 #. translators: %s: error message.
-#: includes/class-ckit-banner.php:160
+#: includes/class-ckit-banner.php:161
 #, php-format
 msgid "Network error: %s"
 msgstr ""
 
-#: includes/class-ckit-banner.php:281
+#: includes/class-ckit-banner.php:282
 msgid "Site"
 msgstr ""
 
-#: includes/class-ckit-banner.php:282
-#: includes/class-ckit-banner.php:336
-#: includes/class-ckit-banner.php:371
-#: includes/class-ckit-banner.php:372
-#: includes/class-ckit-banner.php:376
-msgid "6 months"
-msgstr ""
-
-#: includes/class-ckit-banner.php:283
-#: includes/class-ckit-banner.php:336
+#: includes/class-ckit-banner.php:284
+#: includes/class-ckit-banner.php:353
 msgid "Stores the cookie preferences expressed by the user."
 msgstr ""
 
-#: includes/class-ckit-banner.php:328
+#: includes/class-ckit-banner.php:302
+#: includes/class-ckit-banner.php:388
+#: includes/class-ckit-banner.php:389
+#: includes/class-ckit-banner.php:393
+msgid "6 months"
+msgstr ""
+
+#. translators: %d: number of days the consent cookie is kept.
+#: includes/class-ckit-banner.php:305
+#, php-format
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-ckit-banner.php:345
 #: includes/class-ckit-scanner.php:62
 msgid "Session"
 msgstr ""
 
-#: includes/class-ckit-banner.php:331
+#: includes/class-ckit-banner.php:348
 msgid "Technical identifier of the PHP session."
 msgstr ""
 
-#: includes/class-ckit-banner.php:332
+#: includes/class-ckit-banner.php:349
 msgid "48 hours"
 msgstr ""
 
-#: includes/class-ckit-banner.php:332
+#: includes/class-ckit-banner.php:349
 msgid "Keeps registered users logged in to the reserved area."
 msgstr ""
 
-#: includes/class-ckit-banner.php:333
+#: includes/class-ckit-banner.php:350
 msgid "Security cookie for the reserved area."
 msgstr ""
 
-#: includes/class-ckit-banner.php:334
-#: includes/class-ckit-banner.php:335
+#: includes/class-ckit-banner.php:351
+#: includes/class-ckit-banner.php:352
 msgid "1 year"
 msgstr ""
 
-#: includes/class-ckit-banner.php:334
+#: includes/class-ckit-banner.php:351
 msgid "Stores WordPress dashboard preferences."
 msgstr ""
 
-#: includes/class-ckit-banner.php:335
+#: includes/class-ckit-banner.php:352
 msgid "Timestamp of WordPress dashboard preferences."
 msgstr ""
 
-#: includes/class-ckit-banner.php:338
-#: includes/class-ckit-banner.php:385
+#: includes/class-ckit-banner.php:355
+#: includes/class-ckit-banner.php:402
 msgid "30 minutes"
 msgstr ""
 
-#: includes/class-ckit-banner.php:338
+#: includes/class-ckit-banner.php:355
 msgid "Cloudflare Bot Management: distinguishes human traffic from bots."
 msgstr ""
 
-#: includes/class-ckit-banner.php:339
+#: includes/class-ckit-banner.php:356
 msgid "1 day"
 msgstr ""
 
-#: includes/class-ckit-banner.php:339
+#: includes/class-ckit-banner.php:356
 msgid "Cloudflare Load Balancing."
 msgstr ""
 
-#: includes/class-ckit-banner.php:340
-#: includes/class-ckit-banner.php:341
+#: includes/class-ckit-banner.php:357
+#: includes/class-ckit-banner.php:358
 msgid "30 days"
 msgstr ""
 
-#: includes/class-ckit-banner.php:340
+#: includes/class-ckit-banner.php:357
 msgid "Cloudflare: identifies the client to apply security rules."
 msgstr ""
 
-#: includes/class-ckit-banner.php:341
+#: includes/class-ckit-banner.php:358
 msgid "Cloudflare: an anti-bot challenge was passed."
 msgstr ""
 
-#: includes/class-ckit-banner.php:342
+#: includes/class-ckit-banner.php:359
 msgid "Cloudflare: state of an anti-bot challenge in progress."
 msgstr ""
 
-#: includes/class-ckit-banner.php:344
-#: includes/class-ckit-banner.php:345
-#: includes/class-ckit-banner.php:368
-#: includes/class-ckit-banner.php:369
-#: includes/class-ckit-banner.php:377
-#: includes/class-ckit-banner.php:388
+#: includes/class-ckit-banner.php:361
+#: includes/class-ckit-banner.php:362
+#: includes/class-ckit-banner.php:385
+#: includes/class-ckit-banner.php:386
+#: includes/class-ckit-banner.php:394
+#: includes/class-ckit-banner.php:405
 msgid "24 months"
 msgstr ""
 
-#: includes/class-ckit-banner.php:344
+#: includes/class-ckit-banner.php:361
 msgid "Google Analytics: uniquely identifies the user."
 msgstr ""
 
-#: includes/class-ckit-banner.php:345
+#: includes/class-ckit-banner.php:362
 msgid "Google Analytics 4: persists the session state."
 msgstr ""
 
-#: includes/class-ckit-banner.php:346
-#: includes/class-ckit-banner.php:380
+#: includes/class-ckit-banner.php:363
+#: includes/class-ckit-banner.php:397
 msgid "24 hours"
 msgstr ""
 
-#: includes/class-ckit-banner.php:346
+#: includes/class-ckit-banner.php:363
 msgid "Google Analytics: distinguishes users within 24 hours."
 msgstr ""
 
-#: includes/class-ckit-banner.php:347
-#: includes/class-ckit-banner.php:349
+#: includes/class-ckit-banner.php:364
+#: includes/class-ckit-banner.php:366
 msgid "1 minute"
 msgstr ""
 
-#: includes/class-ckit-banner.php:347
+#: includes/class-ckit-banner.php:364
 msgid "Google Analytics: limits the request rate (throttling)."
 msgstr ""
 
-#: includes/class-ckit-banner.php:349
+#: includes/class-ckit-banner.php:366
 msgid "Google Tag Manager: request throttling."
 msgstr ""
 
-#: includes/class-ckit-banner.php:351
-#: includes/class-ckit-banner.php:354
-#: includes/class-ckit-banner.php:382
+#: includes/class-ckit-banner.php:368
+#: includes/class-ckit-banner.php:371
+#: includes/class-ckit-banner.php:399
 msgid "13 months"
 msgstr ""
 
-#: includes/class-ckit-banner.php:351
+#: includes/class-ckit-banner.php:368
 msgid "Google Ads: personalised advertising and remarketing."
 msgstr ""
 
-#: includes/class-ckit-banner.php:352
+#: includes/class-ckit-banner.php:369
 msgid "15 minutes"
 msgstr ""
 
-#: includes/class-ckit-banner.php:352
+#: includes/class-ckit-banner.php:369
 msgid "Google Ads: checks whether the browser supports cookies."
 msgstr ""
 
-#: includes/class-ckit-banner.php:353
+#: includes/class-ckit-banner.php:370
 msgid "14 days"
 msgstr ""
 
-#: includes/class-ckit-banner.php:353
+#: includes/class-ckit-banner.php:370
 msgid "Google: cross-device advertising identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:354
+#: includes/class-ckit-banner.php:371
 msgid "Google DoubleClick: unique identifier for advertising."
 msgstr ""
 
-#: includes/class-ckit-banner.php:355
-#: includes/class-ckit-banner.php:365
-#: includes/class-ckit-banner.php:379
-#: includes/class-ckit-banner.php:381
-#: includes/class-ckit-banner.php:384
-#: includes/class-ckit-banner.php:389
-#: includes/class-ckit-banner.php:390
-#: includes/class-ckit-banner.php:392
-#: includes/class-ckit-banner.php:393
+#: includes/class-ckit-banner.php:372
+#: includes/class-ckit-banner.php:382
+#: includes/class-ckit-banner.php:396
+#: includes/class-ckit-banner.php:398
+#: includes/class-ckit-banner.php:401
+#: includes/class-ckit-banner.php:406
+#: includes/class-ckit-banner.php:407
+#: includes/class-ckit-banner.php:409
+#: includes/class-ckit-banner.php:410
 msgid "12 months"
 msgstr ""
 
-#: includes/class-ckit-banner.php:355
+#: includes/class-ckit-banner.php:372
 msgid "Google DoubleClick: tracking of advertising redirects."
 msgstr ""
 
-#: includes/class-ckit-banner.php:356
-#: includes/class-ckit-banner.php:357
-#: includes/class-ckit-banner.php:358
+#: includes/class-ckit-banner.php:373
+#: includes/class-ckit-banner.php:374
+#: includes/class-ckit-banner.php:375
 msgid "3 months"
 msgstr ""
 
-#: includes/class-ckit-banner.php:356
+#: includes/class-ckit-banner.php:373
 msgid "Google Conversion Linker: links visits and Google Ads conversions."
 msgstr ""
 
-#: includes/class-ckit-banner.php:357
+#: includes/class-ckit-banner.php:374
 msgid "Google Ads: click tracking for advertising campaigns."
 msgstr ""
 
-#: includes/class-ckit-banner.php:358
+#: includes/class-ckit-banner.php:375
 msgid "Google Display Network: click tracking."
 msgstr ""
 
-#: includes/class-ckit-banner.php:359
+#: includes/class-ckit-banner.php:376
 msgid "1 month"
 msgstr ""
 
-#: includes/class-ckit-banner.php:359
+#: includes/class-ckit-banner.php:376
 msgid "Google: statistics collection and ad personalisation."
 msgstr ""
 
-#: includes/class-ckit-banner.php:361
-#: includes/class-ckit-banner.php:362
-#: includes/class-ckit-banner.php:363
-#: includes/class-ckit-banner.php:366
+#: includes/class-ckit-banner.php:378
+#: includes/class-ckit-banner.php:379
+#: includes/class-ckit-banner.php:380
+#: includes/class-ckit-banner.php:383
 msgid "90 days"
 msgstr ""
 
-#: includes/class-ckit-banner.php:361
+#: includes/class-ckit-banner.php:378
 msgid "Meta Pixel: conversion and advertising campaign tracking."
 msgstr ""
 
-#: includes/class-ckit-banner.php:362
+#: includes/class-ckit-banner.php:379
 msgid "Meta Pixel: advertising click tracking."
 msgstr ""
 
-#: includes/class-ckit-banner.php:363
+#: includes/class-ckit-banner.php:380
 msgid "Facebook: personalised advertising."
 msgstr ""
 
-#: includes/class-ckit-banner.php:365
+#: includes/class-ckit-banner.php:382
 msgid "LinkedIn: browser identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:366
+#: includes/class-ckit-banner.php:383
 msgid "LinkedIn: user identification for advertising."
 msgstr ""
 
-#: includes/class-ckit-banner.php:368
+#: includes/class-ckit-banner.php:385
 msgid "X: visitor identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:369
+#: includes/class-ckit-banner.php:386
 msgid "X: content and advertising personalisation."
 msgstr ""
 
-#: includes/class-ckit-banner.php:371
+#: includes/class-ckit-banner.php:388
 msgid "YouTube: bandwidth estimation and video statistics."
 msgstr ""
 
-#: includes/class-ckit-banner.php:372
+#: includes/class-ckit-banner.php:389
 msgid "YouTube: stores the user's privacy preferences in the video player."
 msgstr ""
 
-#: includes/class-ckit-banner.php:373
+#: includes/class-ckit-banner.php:390
 msgid "YouTube: tracks views within the session."
 msgstr ""
 
-#: includes/class-ckit-banner.php:374
+#: includes/class-ckit-banner.php:391
 msgid "8 months"
 msgstr ""
 
-#: includes/class-ckit-banner.php:374
+#: includes/class-ckit-banner.php:391
 msgid "YouTube/Google: user preferences."
 msgstr ""
 
-#: includes/class-ckit-banner.php:376
+#: includes/class-ckit-banner.php:393
 msgid "Google: ad and content personalisation."
 msgstr ""
 
-#: includes/class-ckit-banner.php:377
+#: includes/class-ckit-banner.php:394
 msgid "Google: user consent status."
 msgstr ""
 
-#: includes/class-ckit-banner.php:379
+#: includes/class-ckit-banner.php:396
 msgid "Microsoft Clarity: user identifier for heatmaps and session replay."
 msgstr ""
 
-#: includes/class-ckit-banner.php:380
+#: includes/class-ckit-banner.php:397
 msgid "Microsoft Clarity: session identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:381
+#: includes/class-ckit-banner.php:398
 msgid "Microsoft Clarity: client identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:382
+#: includes/class-ckit-banner.php:399
 msgid "Microsoft: unique cross-property identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:384
+#: includes/class-ckit-banner.php:401
 msgid "Hotjar: user identifier for heatmaps."
 msgstr ""
 
-#: includes/class-ckit-banner.php:385
+#: includes/class-ckit-banner.php:402
 msgid "Hotjar: session identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:386
+#: includes/class-ckit-banner.php:403
 msgid "Hotjar: the user's first visit."
 msgstr ""
 
-#: includes/class-ckit-banner.php:388
+#: includes/class-ckit-banner.php:405
 msgid "Vimeo: user identifier for video analytics."
 msgstr ""
 
-#: includes/class-ckit-banner.php:389
+#: includes/class-ckit-banner.php:406
 msgid "Vimeo: video player preferences (quality, volume, size)."
 msgstr ""
 
-#: includes/class-ckit-banner.php:390
+#: includes/class-ckit-banner.php:407
 msgid "Vimeo: continuous video playback."
 msgstr ""
 
-#: includes/class-ckit-banner.php:392
+#: includes/class-ckit-banner.php:409
 msgid "Amazon: user session identifier."
 msgstr ""
 
-#: includes/class-ckit-banner.php:393
+#: includes/class-ckit-banner.php:410
 msgid "Amazon: unique identifier."
 msgstr ""
 

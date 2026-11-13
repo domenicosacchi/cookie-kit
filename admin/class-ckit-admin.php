@@ -221,7 +221,10 @@ class CKIT_Admin {
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Re-prompt (days)', 'cookie-kit' ); ?></th>
-					<td><input type="number" min="30" max="365" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[reprompt_days]" value="<?php echo esc_attr( $opts['reprompt_days'] ?? 180 ); ?>"> <span class="description"><?php esc_html_e( 'After how many days the banner is shown again. Default 180 (the Garante Privacy guidelines indicate at least 6 months).', 'cookie-kit' ); ?></span></td>
+					<td><input type="number" min="30" max="365" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[reprompt_days]" value="<?php echo esc_attr( $opts['reprompt_days'] ?? CKIT_REPROMPT_DAYS ); ?>"> <span class="description"><?php
+					/* translators: %d: default number of days before the banner is shown again. */
+					echo esc_html( sprintf( __( 'After how many days the banner is shown again. Default %d (the Garante Privacy guidelines indicate at least 6 months).', 'cookie-kit' ), CKIT_REPROMPT_DAYS ) );
+					?></span></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Log retention (days)', 'cookie-kit' ); ?></th>

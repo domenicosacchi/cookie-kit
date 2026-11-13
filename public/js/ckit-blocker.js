@@ -19,6 +19,19 @@
 		try { return JSON.parse(raw); } catch (e) { return null; }
 	}
 
+	// Placeholder markup can come from post content written by non-admin users, so its
+	// iframe URL must never be trusted: only http(s) URLs may become an iframe src
+	// (blocks javascript:, data: and similar schemes).
+	function safeIframeSrc(src) {
+		if (!src) return null;
+		try {
+			var u = new URL(src, location.href);
+			return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : null;
+		} catch (e) {
+			return null;
+		}
+	}
+
 	var stored = parse(readCookie(COOKIE)) || {};
 	// Same validity rules as the banner: a consent given for an older policy version
 	// or past its re-prompt date is treated as missing.
@@ -93,7 +106,7 @@
 		phs.forEach(function (ph) {
 			var cat = ph.getAttribute('data-ckit-category');
 			if (!cats[cat]) return;
-			var src = ph.getAttribute('data-ckit-iframe-src');
+			var src = safeIframeSrc(ph.getAttribute('data-ckit-iframe-src') || '');
 			if (!src) return;
 			var iframe = document.createElement('iframe');
 			iframe.src = src;
