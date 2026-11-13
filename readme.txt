@@ -1,5 +1,4 @@
 === CookieKit ===
-Contributors: domenicosacchi
 Tags: cookie, cookie banner, consent, consent mode v2, garante privacy
 Requires at least: 6.0
 Tested up to: 7.1
@@ -22,7 +21,7 @@ This plugin does not provide legal advice and does not by itself guarantee compl
 * A close button (X). Closing the banner is recorded as a rejection.
 * Preferences modal with one toggle per category. Under each category, a table of the cookies the scanner found (name, provider, duration, purpose, first/third party).
 * Floating "Manage cookies" button, the `[ckit_button]` shortcode, and the `data-ckit-open-prefs` attribute to reopen the preferences.
-* Consent stored in the first-party `ckit_consent` cookie. The banner comes back after N days (default 180) or when you change the policy version.
+* Consent stored in the first-party `ckit_consent` cookie. The banner comes back after N days (default 183, about six months, the minimum interval in the Italian Garante guidelines) or when you change the policy version.
 * Auto-blocking: enqueued scripts that match a configured vendor stay inactive until consent. Matching iframes in post content become click-to-load placeholders.
 * Google Consent Mode v2: a `default` command with denied signals early in `<head>`, then an `update` command after the visitor's choice.
 * Browser scan and passive server-side scan. The banner lists only the cookies actually found.

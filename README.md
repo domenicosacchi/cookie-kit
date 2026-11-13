@@ -22,7 +22,7 @@ CookieKit shows a consent banner and blocks known third-party scripts and embeds
 **Consent storage and re-prompt**
 
 - The choice is stored in a first-party cookie, `ckit_consent`. It holds a JSON object: consent UUID, action, categories, policy version, timestamp, expiry.
-- The banner comes back after a configurable number of days (default 180, range 30–365).
+- The banner comes back after a configurable number of days (default 183, range 30–365). Italian sites should keep at least 6 months, as required by the Garante guidelines.
 - It also comes back when you change the **policy version** setting, so visitors are asked again after you update your cookie policy.
 
 **Script and iframe blocking** (auto-blocking can be turned off)
@@ -39,7 +39,7 @@ CookieKit shows a consent banner and blocks known third-party scripts and embeds
 - **Browser scan (recommended).** It opens the site as a logged-in administrator with `?ckit-snapshot=1`. It visits the home page, up to 2 pages and 2 random posts, waits 5 seconds on each, and collects the cookie names the browser sees, including HttpOnly cookies sent with the request. The server then reads each page's HTML to find configured vendors, such as a YouTube iframe or a GTM script, and adds the cookies declared for them as third-party cookies, because browsers never expose third-party cookies to JavaScript.
 - **Passive scan.** It sends server-side requests to the home page, up to 5 pages and 3 posts, and reads `Set-Cookie` headers.
 - **Classification.** It uses the vendor cookie lists (with `*` wildcards) and the cookie domain. Built-in rules cover WordPress/PHP/CookieKit, Cloudflare, CSRF tokens and WooCommerce cookies.
-- **What the banner lists.** The banner lists only cookies the scanner found, plus CookieKit's own `ckit_consent` cookie. A built-in dictionary adds duration and purpose for common cookies.
+- **What the banner lists.** The banner lists only cookies the scanner found, plus CookieKit's own `ckit_consent` cookie. A built-in dictionary adds duration and purpose for common cookies. These durations and descriptions are indicative: providers change them over time, so check them against each provider's documentation before relying on them in your cookie policy.
 
 **Consent log**
 

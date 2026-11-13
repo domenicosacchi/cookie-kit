@@ -86,7 +86,7 @@ class CKIT_Activator {
 				'logo_max_height'      => 56,
 				'consent_mode_v2'      => 1,
 				'auto_block'           => 1,
-				'reprompt_days'        => 180,
+				'reprompt_days'        => 183,
 				'log_retention_days'   => 1825, // 5 years.
 				// Empty: the translated default path is used at runtime (see CKIT_Core::privacy_policy_url()).
 				'privacy_policy_url'   => '',

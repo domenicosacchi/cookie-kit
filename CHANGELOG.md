@@ -2,7 +2,10 @@
 
 All notable changes to CookieKit are documented in this file.
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2026-11-13
+
+### Changed
+- Default re-prompt interval raised from 180 to 183 days (about six months). Sites that already saved 180 keep their setting.
 
 First public release on GitHub.
 

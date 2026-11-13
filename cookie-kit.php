@@ -29,7 +29,7 @@ define( 'CKIT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'CKIT_DB_VERSION', '1.0' );
 define( 'CKIT_OPTION_KEY', 'ckit_settings' );
 define( 'CKIT_CONSENT_COOKIE', 'ckit_consent' );
-define( 'CKIT_REPROMPT_DAYS', 180 ); // Days before the banner is shown again.
+define( 'CKIT_REPROMPT_DAYS', 183 ); // Days before the banner is shown again.
 
 // Autoloader for plugin classes (CKIT_* prefix).
 spl_autoload_register(

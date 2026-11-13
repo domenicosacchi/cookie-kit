@@ -8,7 +8,7 @@
 
 	var CFG = window.CKIT_CFG || {};
 	var COOKIE = CFG.cookieName || 'ckit_consent';
-	var REPROMPT_DAYS = CFG.repromptDays || 180;
+	var REPROMPT_DAYS = CFG.repromptDays || 183;
 	var TEXTS = CFG.texts || {};
 	var CATS = CFG.categories || {};
 	var I18N = CFG.i18n || {};
