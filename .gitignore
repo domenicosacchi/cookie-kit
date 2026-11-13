@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Archives and build output
+*.zip
+/build/
+/dist/
+
+# Dependencies
+/node_modules/
+/vendor/
+
+# Editors
+.idea/
+.vscode/
+*.swp
