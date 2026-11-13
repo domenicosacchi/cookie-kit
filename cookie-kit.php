@@ -3,7 +3,7 @@
  * Plugin Name:       CookieKit
  * Plugin URI:        https://github.com/domenicosacchi/cookie-kit
  * Description:       Self-hosted cookie consent banner designed around the Italian Data Protection Authority guidelines (Garante Privacy, provvedimento 231/2021, 10 June 2021) and Google Consent Mode v2. Third-party script auto-blocking, cookie scanner, exportable consent log.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Domenico Sacchi
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'CKIT_VERSION', '1.2.0' );
+define( 'CKIT_VERSION', '1.2.1' );
 define( 'CKIT_PLUGIN_FILE', __FILE__ );
 define( 'CKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CKIT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

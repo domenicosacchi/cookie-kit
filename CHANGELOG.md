@@ -2,6 +2,17 @@
 
 All notable changes to CookieKit are documented in this file.
 
+## [1.2.1] - 2026-11-13
+
+### Security
+- Iframe placeholders (`.ckit-iframe-placeholder`) only load `http:` and `https:` URLs. Post content from users without the `unfiltered_html` capability (such as Authors and Contributors) could include a placeholder whose `data-ckit-iframe-src` held a `javascript:` URL. That URL ran in the site's origin when the iframe was unblocked, either automatically for visitors who had already consented or with the "Load once" button.
+
+### Fixed
+- Consents were not written to the log from cached pages once the REST nonce in the cached HTML expired: WordPress answered `403 rest_cookie_invalid_nonce` even for logged-out visitors. The banner no longer sends a nonce to the public `POST /cookiekit/v1/consent` endpoint.
+- The preferences modal always listed the consent cookie as lasting "6 months", whatever the re-prompt setting. It now shows the configured number of days; the default (183 days) still shows "6 months".
+- The Settings page showed 180 as the re-prompt default (field fallback and help text) instead of 183.
+- Scanner HTML enrichment no longer treats the page as empty when a regular expression fails on a very large page.
+
 ## [1.2.0] - 2026-11-13
 
 First public release on GitHub.

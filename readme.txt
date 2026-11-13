@@ -3,7 +3,7 @@ Tags: cookie, cookie banner, consent, consent mode v2, garante privacy
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,12 @@ Change the policy version in Settings.
 
 == Changelog ==
 
+= 1.2.1 =
+* Security: iframe placeholders only load http(s) URLs. Placeholder markup in post content could run JavaScript when the iframe was unblocked.
+* Fix: consents from cached pages were not logged once the page's REST nonce expired. The banner no longer sends a nonce to the public consent endpoint.
+* Fix: the preferences modal always showed "6 months" for the consent cookie, whatever the re-prompt setting.
+* Fix: the Settings page showed 180 as the re-prompt default instead of 183.
+
 = 1.2.0 =
 * Security and data-handling fixes: settings sanitization, REST input validation, scanner limited to the site's own URLs, safe CSV export, escaping fixes.
 * Fix: unchecking a checkbox in Settings had no effect.
@@ -90,6 +96,9 @@ Change the policy version in Settings.
 See CHANGELOG.md for the full history.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Security fix for iframe placeholders and a fix for consent logging on cached pages. Recommended for all sites.
 
 = 1.2.0 =
 Security and bug fixes. Saved settings and texts are kept. After updating, open Settings and check the checkboxes before saving: they now show and store the value actually in use.

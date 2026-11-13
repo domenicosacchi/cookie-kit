@@ -66,7 +66,7 @@ CookieKit shows a consent banner and blocks known third-party scripts and embeds
 - WordPress 6.0 or later
 - PHP 7.4 or later
 
-Version 1.2.0 was tested with WordPress 7.1.4 and PHP 8.5.9 (SQLite Database Integration). Older WordPress/PHP versions within the requirements were not tested for this release.
+Version 1.2.1 was tested with WordPress 7.1.4 and PHP 8.5.9 (SQLite Database Integration). Older WordPress/PHP versions within the requirements were not tested for this release.
 
 ## Installation
 
