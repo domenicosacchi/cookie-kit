@@ -139,7 +139,7 @@ class CKIT_Admin {
 		$tabs = array(
 			'settings'   => __( 'Settings', 'cookie-kit' ),
 			'categories' => __( 'Categories', 'cookie-kit' ),
-			'vendors'    => __( 'Vendor', 'cookie-kit' ),
+			'vendors'    => __( 'Vendors', 'cookie-kit' ),
 			'scanner'    => __( 'Scanner', 'cookie-kit' ),
 			'log'        => __( 'Consent log', 'cookie-kit' ),
 			'texts'      => __( 'Texts', 'cookie-kit' ),
