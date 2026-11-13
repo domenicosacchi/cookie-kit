@@ -1,0 +1,9 @@
+/* CookieKit — Admin */
+.ckit-admin .nav-tab-wrapper{margin-bottom:1em}
+.ckit-admin .ckit-tab-content{background:#fff;padding:20px;border:1px solid #ccd0d4;border-top:none}
+.ckit-admin .form-table th{width:240px}
+.ckit-admin .ckit-stats{display:flex;gap:1.5em;margin:1em 0 1.5em}
+.ckit-admin .ckit-stats div{background:#f6f7f7;border-left:4px solid #0a3d62;padding:.7em 1em;font-size:.95em}
+.ckit-admin .ckit-stats strong{font-size:1.6em;display:block;color:#0a3d62}
+.ckit-admin .ckit-vendors-table input[type=text]{width:100%}
+.ckit-admin code{background:#f1f1f1;padding:.1em .4em;border-radius:3px}
