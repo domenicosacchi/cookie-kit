@@ -45,8 +45,9 @@ class CKIT_Banner {
 			'policyVersion'     => CKIT_Core::settings( 'policy_version', '1.0' ),
 			'restUrl'           => esc_url_raw( rest_url( 'cookiekit/v1/consent' ) ),
 			'restNonce'         => wp_create_nonce( 'wp_rest' ),
+			// The vendor list is not sent to the browser: the JS does not use it, and printing it
+			// made the scanner's HTML enrichment "detect" every configured vendor on every page.
 			'categories'        => CKIT_Core::categories(),
-			'vendors'           => CKIT_Core::vendors(),
 			'cookiesByCategory' => $this->cookies_by_category(),
 			'texts'             => CKIT_Core::texts(),
 			'i18n'              => array(
@@ -184,7 +185,7 @@ class CKIT_Banner {
 		// Snapshot mode: every signal starts as granted so tracking scripts set their cookies natively.
 		if ( CKIT_Core::is_snapshot_mode() ) {
 			?>
-<script>
+<script id="ckit-consent-mode">
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', {
@@ -201,7 +202,7 @@ gtag('consent', 'default', {
 			return;
 		}
 		?>
-<script>
+<script id="ckit-consent-mode">
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', {

@@ -84,15 +84,19 @@ class CKIT_Rest {
 		$server_cookies = array();
 		if ( is_array( $_COOKIE ) ) {
 			foreach ( array_keys( $_COOKIE ) as $name ) {
-				// Skip WordPress login cookies, which only logged-in users have (not public visitors).
-				if ( preg_match( '/^(wordpress_(?:logged_in|sec)|wp-settings)/i', $name ) ) {
-					continue;
-				}
 				$server_cookies[] = sanitize_text_field( $name );
 			}
 		}
 
-		$all = array_values( array_unique( array_merge( $cookies, $server_cookies ) ) );
+		// Skip WordPress login/dashboard cookies: only the scanning admin has them, public visitors do not.
+		$all = array_values(
+			array_filter(
+				array_unique( array_merge( $cookies, $server_cookies ) ),
+				function ( $name ) {
+					return ! preg_match( '/^(wordpress_(?:logged_in|sec|test_cookie)|wp-settings)/i', $name );
+				}
+			)
+		);
 
 		if ( empty( $all ) ) {
 			return new WP_REST_Response(

@@ -229,6 +229,9 @@ class CKIT_Scanner {
 		if ( ! $body ) {
 			return 0;
 		}
+		// Ignore CookieKit's own inline scripts (Consent Mode snippet with gtag(), localized config):
+		// otherwise vendor patterns such as "gtag" would match on every page.
+		$body = preg_replace( '#<script[^>]*\sid=["\']ckit-[^"\']*["\'][^>]*>.*?</script>#is', '', $body );
 
 		global $wpdb;
 		$table   = $this->table();
