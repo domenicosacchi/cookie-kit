@@ -29,13 +29,17 @@ class CKIT_Scanner {
 		);
 
 		foreach ( $urls as $url ) {
-			$response = wp_remote_get(
+			if ( ! $this->is_own_url( $url ) ) {
+				continue;
+			}
+			$response = wp_safe_remote_get(
 				$url,
 				array(
 					'timeout'     => 15,
 					'redirection' => 3,
-					'sslverify'   => false,
-					'user-agent'  => 'WE-Cookie-Consent-Scanner/1.0',
+					// Loopback request to the site itself: same SSL policy as WordPress core loopbacks.
+					'sslverify'   => apply_filters( 'https_local_ssl_verify', false ),
+					'user-agent'  => 'CookieKit-Scanner/' . CKIT_VERSION,
 				)
 			);
 
@@ -205,16 +209,17 @@ class CKIT_Scanner {
 	 * @return int numero di righe aggiunte.
 	 */
 	public function enrich_from_html( $page_url ) {
-		if ( empty( $page_url ) ) {
+		// Only fetch pages of this site (prevents server-side requests to arbitrary hosts).
+		if ( empty( $page_url ) || ! $this->is_own_url( $page_url ) ) {
 			return 0;
 		}
-		$response = wp_remote_get(
+		$response = wp_safe_remote_get(
 			$page_url,
 			array(
 				'timeout'     => 12,
 				'redirection' => 3,
-				'sslverify'   => false,
-				'user-agent'  => 'CookieKit-Enricher/1.0 (compatible; admin-snapshot)',
+				'sslverify'   => apply_filters( 'https_local_ssl_verify', false ),
+				'user-agent'  => 'CookieKit-Scanner/' . CKIT_VERSION,
 			)
 		);
 		if ( is_wp_error( $response ) ) {
@@ -297,7 +302,7 @@ class CKIT_Scanner {
 		$count = 0;
 		foreach ( $cookies as $entry ) {
 			if ( is_string( $entry ) ) {
-				$name   = trim( $entry );
+				$name   = sanitize_text_field( $entry );
 				$domain = $home_host;
 				$expire = '';
 			} elseif ( is_array( $entry ) ) {
@@ -327,6 +332,18 @@ class CKIT_Scanner {
 			$count++;
 		}
 		return $count;
+	}
+
+	/**
+	 * Whether a URL points to this site (same host as home_url()).
+	 *
+	 * @param string $url URL to check.
+	 * @return bool
+	 */
+	public function is_own_url( $url ) {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+		$home = wp_parse_url( home_url(), PHP_URL_HOST );
+		return $host && $home && strtolower( $host ) === strtolower( $home );
 	}
 
 	public function clear() {

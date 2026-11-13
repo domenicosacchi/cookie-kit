@@ -28,7 +28,7 @@ class CKIT_Core {
 	}
 
 	private function init() {
-		load_plugin_textdomain( 'cookie-kit', false, dirname( CKIT_PLUGIN_BASENAME ) . '/languages' );
+		add_action( 'init', array( $this, 'load_textdomain' ) );
 
 		$this->log     = new CKIT_Log();
 		$this->banner  = new CKIT_Banner();
@@ -42,6 +42,10 @@ class CKIT_Core {
 
 		// Cron daily cleanup.
 		add_action( 'ckit_daily_cleanup', array( $this, 'daily_cleanup' ) );
+	}
+
+	public function load_textdomain() {
+		load_plugin_textdomain( 'cookie-kit', false, dirname( CKIT_PLUGIN_BASENAME ) . '/languages' );
 	}
 
 	public static function settings( $key = null, $default = null ) {

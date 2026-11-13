@@ -53,7 +53,82 @@ class CKIT_Admin {
 	}
 
 	public function register_settings() {
-		register_setting( 'ckit_settings_group', CKIT_OPTION_KEY );
+		register_setting(
+			'ckit_settings_group',
+			CKIT_OPTION_KEY,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_settings' ),
+			)
+		);
+	}
+
+	/**
+	 * Sanitize the main settings array submitted from the Settings tab.
+	 *
+	 * Unchecked checkboxes are stored as 0: before 1.2.0 they were dropped from the array,
+	 * so CKIT_Core::settings() fell back to the default (1) and unchecking had no effect.
+	 *
+	 * @param mixed $input Raw submitted value.
+	 * @return array
+	 */
+	public function sanitize_settings( $input ) {
+		$old = get_option( CKIT_OPTION_KEY, array() );
+		$old = is_array( $old ) ? $old : array();
+		if ( ! is_array( $input ) ) {
+			return $old;
+		}
+		// Start from the stored value so keys not present in the form are preserved.
+		$out = $old;
+
+		foreach ( array( 'enabled', 'auto_block', 'block_iframes', 'consent_mode_v2', 'show_floating_button', 'show_logo' ) as $key ) {
+			$out[ $key ] = empty( $input[ $key ] ) ? 0 : 1;
+		}
+
+		$choices = array(
+			'banner_position'   => array( 'bottom', 'top', 'center' ),
+			'banner_layout'     => array( 'bar', 'box' ),
+			'theme'             => array( 'light', 'dark' ),
+			'floating_position' => array( 'bottom-left', 'bottom-right' ),
+		);
+		foreach ( $choices as $key => $allowed ) {
+			if ( isset( $input[ $key ] ) && in_array( $input[ $key ], $allowed, true ) ) {
+				$out[ $key ] = $input[ $key ];
+			}
+		}
+
+		foreach ( array( 'primary_color', 'accept_color', 'reject_color' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$color = sanitize_hex_color( $input[ $key ] );
+				if ( $color ) {
+					$out[ $key ] = $color;
+				}
+			}
+		}
+
+		$ranges = array(
+			'reprompt_days'      => array( 30, 365 ),
+			'log_retention_days' => array( 30, 3650 ),
+			'logo_max_height'    => array( 20, 120 ),
+		);
+		foreach ( $ranges as $key => $range ) {
+			if ( isset( $input[ $key ] ) && is_numeric( $input[ $key ] ) ) {
+				$out[ $key ] = min( $range[1], max( $range[0], absint( $input[ $key ] ) ) );
+			}
+		}
+
+		if ( isset( $input['policy_version'] ) ) {
+			$version = substr( sanitize_text_field( $input['policy_version'] ), 0, 20 );
+			$out['policy_version'] = '' !== $version ? $version : '1.0';
+		}
+
+		foreach ( array( 'privacy_policy_url', 'cookie_policy_url', 'logo_url' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$out[ $key ] = esc_url_raw( trim( (string) $input[ $key ] ) );
+			}
+		}
+
+		return $out;
 	}
 
 	public function render_page() {
@@ -115,28 +190,28 @@ class CKIT_Admin {
 			<table class="form-table">
 				<tr>
 					<th><?php esc_html_e( 'Plugin attivo', 'cookie-kit' ); ?></th>
-					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[enabled]" value="1" <?php checked( ! empty( $opts['enabled'] ) ); ?>>
+					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[enabled]" value="1" <?php checked( (bool) CKIT_Core::settings( 'enabled', 1 ) ); ?>>
 						<?php esc_html_e( 'Mostra il banner ai visitatori', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Auto-blocco script', 'cookie-kit' ); ?></th>
-					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[auto_block]" value="1" <?php checked( ! empty( $opts['auto_block'] ) ); ?>>
+					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[auto_block]" value="1" <?php checked( (bool) CKIT_Core::settings( 'auto_block', 1 ) ); ?>>
 						<?php esc_html_e( 'Blocca script di terze parti finché non c\'è consenso', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Blocco iframe', 'cookie-kit' ); ?></th>
-					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[block_iframes]" value="1" <?php checked( ! empty( $opts['block_iframes'] ) ); ?>>
+					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[block_iframes]" value="1" <?php checked( (bool) CKIT_Core::settings( 'block_iframes', 1 ) ); ?>>
 						<?php esc_html_e( 'Sostituisci YouTube/Vimeo/Maps con placeholder click-to-load', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Google Consent Mode v2', 'cookie-kit' ); ?></th>
-					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[consent_mode_v2]" value="1" <?php checked( ! empty( $opts['consent_mode_v2'] ) ); ?>>
+					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[consent_mode_v2]" value="1" <?php checked( (bool) CKIT_Core::settings( 'consent_mode_v2', 1 ) ); ?>>
 						<?php esc_html_e( 'Inietta segnali consent default=denied prima di Analytics/GTM', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Pulsante footer', 'cookie-kit' ); ?></th>
 					<td>
-						<label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_floating_button]" value="1" <?php checked( ! empty( $opts['show_floating_button'] ) ); ?>>
+						<label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_floating_button]" value="1" <?php checked( (bool) CKIT_Core::settings( 'show_floating_button', 1 ) ); ?>>
 							<?php esc_html_e( 'Mostra icona persistente "Gestisci cookie"', 'cookie-kit' ); ?></label><br>
 						<select name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[floating_position]">
 							<option value="bottom-left" <?php selected( $opts['floating_position'] ?? '', 'bottom-left' ); ?>>bottom-left</option>
@@ -206,7 +281,7 @@ class CKIT_Admin {
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Mostra logo nel banner', 'cookie-kit' ); ?></th>
-					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_logo]" value="1" <?php checked( ! empty( $opts['show_logo'] ) ); ?>>
+					<td><label><input type="checkbox" name="<?php echo esc_attr( CKIT_OPTION_KEY ); ?>[show_logo]" value="1" <?php checked( (bool) CKIT_Core::settings( 'show_logo', 0 ) ); ?>>
 						<?php esc_html_e( 'Visualizza il logo del sito sopra il titolo del banner e del modale di personalizzazione', 'cookie-kit' ); ?></label></td>
 				</tr>
 				<tr>
@@ -219,7 +294,7 @@ class CKIT_Admin {
 						</p>
 						<p class="description"><?php esc_html_e( 'Consigliato: PNG/SVG con sfondo trasparente, altezza ~80-120px. Formato landscape.', 'cookie-kit' ); ?></p>
 						<div id="ckit-logo-preview" style="margin-top:10px;<?php echo empty( $opts['logo_url'] ) ? 'display:none' : ''; ?>">
-							<img src="<?php echo esc_attr( $opts['logo_url'] ?? '' ); ?>" style="max-height:60px;max-width:300px;border:1px solid #ddd;padding:8px;background:#fff;border-radius:4px">
+							<img src="<?php echo esc_url( $opts['logo_url'] ?? '' ); ?>" alt="" style="max-height:60px;max-width:300px;border:1px solid #ddd;padding:8px;background:#fff;border-radius:4px">
 						</div>
 					</td>
 				</tr>
@@ -319,17 +394,17 @@ class CKIT_Admin {
 				<tbody id="ckit-vendor-rows">
 					<?php foreach ( $vendors as $i => $v ) : ?>
 						<tr>
-							<td><input type="text" name="vendor[<?php echo $i; ?>][name]" value="<?php echo esc_attr( $v['name'] ?? '' ); ?>"></td>
+							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][name]" value="<?php echo esc_attr( $v['name'] ?? '' ); ?>"></td>
 							<td>
-								<select name="vendor[<?php echo $i; ?>][category]">
+								<select name="vendor[<?php echo absint( $i ); ?>][category]">
 									<?php foreach ( get_option( 'ckit_categories', array() ) as $cid => $c ) : ?>
 										<option value="<?php echo esc_attr( $cid ); ?>" <?php selected( $v['category'] ?? '', $cid ); ?>><?php echo esc_html( $c['name'] ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
-							<td><input type="text" name="vendor[<?php echo $i; ?>][host]" value="<?php echo esc_attr( $v['host'] ?? '' ); ?>"></td>
-							<td><input type="text" name="vendor[<?php echo $i; ?>][pattern]" value="<?php echo esc_attr( $v['pattern'] ?? '' ); ?>"></td>
-							<td><input type="text" name="vendor[<?php echo $i; ?>][cookies]" value="<?php echo esc_attr( $v['cookies'] ?? '' ); ?>"></td>
+							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][host]" value="<?php echo esc_attr( $v['host'] ?? '' ); ?>"></td>
+							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][pattern]" value="<?php echo esc_attr( $v['pattern'] ?? '' ); ?>"></td>
+							<td><input type="text" name="vendor[<?php echo absint( $i ); ?>][cookies]" value="<?php echo esc_attr( $v['cookies'] ?? '' ); ?>"></td>
 							<td><button type="button" class="button-link ckit-remove-vendor"><?php esc_html_e( 'Rimuovi', 'cookie-kit' ); ?></button></td>
 						</tr>
 					<?php endforeach; ?>
@@ -412,7 +487,7 @@ class CKIT_Admin {
 							<td><?php echo esc_html( $r->party ); ?></td>
 							<td><?php echo esc_html( $r->vendor ); ?></td>
 							<td><?php echo esc_html( $r->duration ); ?></td>
-							<td><a href="<?php echo esc_url( $r->source_url ); ?>" target="_blank"><?php echo esc_html( wp_parse_url( $r->source_url, PHP_URL_PATH ) ); ?></a></td>
+							<td><a href="<?php echo esc_url( $r->source_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( wp_parse_url( $r->source_url, PHP_URL_PATH ) ); ?></a></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -450,7 +525,7 @@ class CKIT_Admin {
 					<th><?php esc_html_e( 'Azione', 'cookie-kit' ); ?></th>
 					<th><?php esc_html_e( 'Categorie', 'cookie-kit' ); ?></th>
 					<th><?php esc_html_e( 'Versione policy', 'cookie-kit' ); ?></th>
-					<th URL><?php esc_html_e( 'Pagina', 'cookie-kit' ); ?></th>
+					<th><?php esc_html_e( 'Pagina', 'cookie-kit' ); ?></th>
 					<th>Lang</th>
 				</tr>
 			</thead>
@@ -463,7 +538,7 @@ class CKIT_Admin {
 						<td><?php echo esc_html( $r->action ); ?></td>
 						<td><code><?php echo esc_html( $r->categories ); ?></code></td>
 						<td><?php echo esc_html( $r->policy_version ); ?></td>
-						<td><a href="<?php echo esc_url( $r->page_url ); ?>" target="_blank"><?php echo esc_html( wp_parse_url( $r->page_url, PHP_URL_PATH ) ); ?></a></td>
+						<td><a href="<?php echo esc_url( $r->page_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( wp_parse_url( $r->page_url, PHP_URL_PATH ) ); ?></a></td>
 						<td><?php echo esc_html( $r->language ); ?></td>
 					</tr>
 				<?php endforeach; ?>
@@ -542,8 +617,9 @@ class CKIT_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'forbidden' );
 		}
-		$format = isset( $_GET['format'] ) ? sanitize_key( $_GET['format'] ) : 'csv';
+		$format = isset( $_GET['format'] ) ? sanitize_key( wp_unslash( $_GET['format'] ) ) : 'csv';
 		$log    = CKIT_Core::instance()->log;
+		nocache_headers();
 		if ( 'json' === $format ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			header( 'Content-Disposition: attachment; filename="ckit-consent-log-' . gmdate( 'Y-m-d' ) . '.json"' );
@@ -561,9 +637,12 @@ class CKIT_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'forbidden' );
 		}
-		$cat_in = isset( $_POST['cat'] ) ? wp_unslash( $_POST['cat'] ) : array();
+		$cat_in = isset( $_POST['cat'] ) && is_array( $_POST['cat'] ) ? wp_unslash( $_POST['cat'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$out    = array();
 		foreach ( $cat_in as $id => $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
 			$id = sanitize_key( $id );
 			$out[ $id ] = array(
 				'name'        => sanitize_text_field( $row['name'] ?? '' ),
@@ -585,17 +664,22 @@ class CKIT_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'forbidden' );
 		}
-		$in  = isset( $_POST['vendor'] ) ? wp_unslash( $_POST['vendor'] ) : array();
+		$in  = isset( $_POST['vendor'] ) && is_array( $_POST['vendor'] ) ? wp_unslash( $_POST['vendor'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
 		$out = array();
 		foreach ( $in as $row ) {
-			if ( empty( $row['name'] ) ) {
+			if ( ! is_array( $row ) || empty( $row['name'] ) ) {
 				continue;
+			}
+			$pattern = sanitize_text_field( $row['pattern'] ?? '' );
+			// Drop invalid regular expressions instead of storing a pattern that can never match.
+			if ( '' !== $pattern && false === @preg_match( $pattern, '' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
+				$pattern = '';
 			}
 			$out[] = array(
 				'name'     => sanitize_text_field( $row['name'] ),
 				'category' => sanitize_key( $row['category'] ?? 'marketing' ),
 				'host'     => sanitize_text_field( $row['host'] ?? '' ),
-				'pattern'  => sanitize_text_field( $row['pattern'] ?? '' ),
+				'pattern'  => $pattern,
 				'cookies'  => sanitize_text_field( $row['cookies'] ?? '' ),
 			);
 		}
@@ -604,15 +688,30 @@ class CKIT_Admin {
 		exit;
 	}
 
+	/**
+	 * Text keys editable from the "Texts" tab.
+	 *
+	 * @return string[]
+	 */
+	private function text_keys() {
+		return array( 'banner_title', 'banner_message', 'btn_accept_all', 'btn_reject_all', 'btn_customize', 'btn_save', 'btn_close', 'modal_title', 'modal_intro', 'floating_button', 'privacy_link_text', 'cookies_link_text' );
+	}
+
 	public function handle_save_texts() {
 		check_admin_referer( 'ckit_save_texts' );
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( 'forbidden' );
 		}
-		$in  = isset( $_POST['texts'] ) ? wp_unslash( $_POST['texts'] ) : array();
-		$out = array();
+		$in  = isset( $_POST['texts'] ) && is_array( $_POST['texts'] ) ? wp_unslash( $_POST['texts'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field below.
+		$out = get_option( 'ckit_texts', array() );
+		$out = is_array( $out ) ? $out : array();
 		foreach ( $in as $k => $v ) {
-			$out[ sanitize_key( $k ) ] = sanitize_textarea_field( $v );
+			$k = sanitize_key( $k );
+			// Only known text keys, only strings.
+			if ( ! in_array( $k, $this->text_keys(), true ) || ! is_string( $v ) ) {
+				continue;
+			}
+			$out[ $k ] = sanitize_textarea_field( $v );
 		}
 		update_option( 'ckit_texts', $out );
 		wp_safe_redirect( add_query_arg( 'tab', 'texts', admin_url( 'admin.php?page=' . self::SLUG ) ) );

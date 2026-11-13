@@ -57,11 +57,23 @@ class CKIT_Rest {
 	 */
 	public function save_snapshot( WP_REST_Request $request ) {
 		$cookies = $request->get_param( 'cookies' );
-		$page    = esc_url_raw( $request->get_param( 'page_url' ) );
+		$page    = esc_url_raw( (string) $request->get_param( 'page_url' ) );
 
 		if ( ! is_array( $cookies ) ) {
 			$cookies = array();
 		}
+		// Accept only cookie names (strings); drop anything else.
+		$cookies = array_values(
+			array_filter(
+				array_map(
+					function ( $c ) {
+						return is_string( $c ) ? sanitize_text_field( $c ) : '';
+					},
+					$cookies
+				),
+				'strlen'
+			)
+		);
 
 		// Integra cookie HttpOnly (es. PHPSESSID): il browser li include nell'header Cookie
 		// della richiesta REST, così sono accessibili lato server in $_COOKIE.
@@ -107,24 +119,32 @@ class CKIT_Rest {
 	}
 
 	public function log_consent( WP_REST_Request $request ) {
-		$action      = sanitize_text_field( $request->get_param( 'action' ) );
-		$categories  = $request->get_param( 'categories' );
-		$page_url    = esc_url_raw( $request->get_param( 'page_url' ) );
-		$language    = sanitize_text_field( $request->get_param( 'language' ) );
-		$consent_uuid = sanitize_text_field( $request->get_param( 'consent_uuid' ) );
+		$action       = sanitize_text_field( (string) $request->get_param( 'action' ) );
+		$categories   = $request->get_param( 'categories' );
+		$page_url     = substr( esc_url_raw( (string) $request->get_param( 'page_url' ) ), 0, 500 );
+		$language     = substr( preg_replace( '/[^A-Za-z_-]/', '', (string) $request->get_param( 'language' ) ), 0, 10 );
+		$consent_uuid = sanitize_text_field( (string) $request->get_param( 'consent_uuid' ) );
 
 		$valid_actions = array( 'accept_all', 'reject_all', 'customize', 'revoke' );
 		if ( ! in_array( $action, $valid_actions, true ) ) {
 			return new WP_REST_Response( array( 'ok' => false, 'error' => 'invalid_action' ), 400 );
 		}
 
+		// Keep only category IDs that actually exist (prevents arbitrary data in the log).
+		$known_categories = array_keys( CKIT_Core::categories() );
 		if ( is_array( $categories ) ) {
-			$categories = array_map( 'sanitize_text_field', $categories );
+			$categories = array_values(
+				array_intersect(
+					array_map( 'sanitize_key', array_filter( $categories, 'is_scalar' ) ),
+					$known_categories
+				)
+			);
 		} else {
 			$categories = array();
 		}
 
-		if ( empty( $consent_uuid ) ) {
+		// The column is CHAR(36): accept only a well-formed UUID, otherwise generate one.
+		if ( ! wp_is_uuid( $consent_uuid ) ) {
 			$consent_uuid = wp_generate_uuid4();
 		}
 

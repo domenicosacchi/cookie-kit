@@ -38,7 +38,7 @@
 				if (dot) dot.style.animation = 'none';
 			},
 			error: function (msg) {
-				document.getElementById('ckit-snap-status').innerHTML = '⚠ ' + msg;
+				document.getElementById('ckit-snap-status').textContent = '⚠ ' + msg;
 				box.style.background = '#a02323';
 			}
 		};

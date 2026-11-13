@@ -39,6 +39,12 @@ class CKIT_Log {
 			$row['ip_hash'] = hash( 'sha256', $ip . wp_salt() );
 		}
 
+		// Respect column sizes (strict SQL modes reject oversized values).
+		$row['page_url']       = substr( (string) $row['page_url'], 0, 500 );
+		$row['user_agent']     = substr( (string) $row['user_agent'], 0, 500 );
+		$row['language']       = substr( (string) $row['language'], 0, 10 );
+		$row['policy_version'] = substr( (string) $row['policy_version'], 0, 20 );
+
 		if ( is_array( $row['categories'] ) ) {
 			$row['categories'] = wp_json_encode( $row['categories'] );
 		}
@@ -115,22 +121,33 @@ class CKIT_Log {
 		$table = $this->table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$rows = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC", ARRAY_A );
-		$out  = "id,created_at,consent_uuid,action,categories,policy_version,page_url,ip_hash,language\n";
+		$columns = array( 'id', 'created_at', 'consent_uuid', 'action', 'categories', 'policy_version', 'page_url', 'ip_hash', 'language' );
+		$handle  = fopen( 'php://temp', 'r+' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		fputcsv( $handle, $columns, ',', '"', '' );
 		foreach ( $rows as $r ) {
-			$out .= sprintf(
-				"%d,%s,%s,%s,\"%s\",%s,%s,%s,%s\n",
-				$r['id'],
-				$r['created_at'],
-				$r['consent_uuid'],
-				$r['action'],
-				str_replace( '"', '""', $r['categories'] ),
-				$r['policy_version'],
-				$r['page_url'],
-				$r['ip_hash'],
-				$r['language']
-			);
+			$line = array();
+			foreach ( $columns as $col ) {
+				$line[] = $this->csv_safe( isset( $r[ $col ] ) ? (string) $r[ $col ] : '' );
+			}
+			fputcsv( $handle, $line, ',', '"', '' );
 		}
+		rewind( $handle );
+		$out = stream_get_contents( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		return $out;
+	}
+
+	/**
+	 * Neutralize spreadsheet formula injection (cells starting with = + - @ tab or CR).
+	 *
+	 * @param string $value Cell value.
+	 * @return string
+	 */
+	private function csv_safe( $value ) {
+		if ( '' !== $value && false !== strpos( "=+-@\t\r", $value[0] ) ) {
+			return "'" . $value;
+		}
+		return $value;
 	}
 
 	public function export_json() {

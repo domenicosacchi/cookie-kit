@@ -56,14 +56,14 @@ class CKIT_Banner {
 			'acceptColor'      => CKIT_Core::settings( 'accept_color', '#0a3d62' ),
 			'rejectColor'      => CKIT_Core::settings( 'reject_color', '#6c757d' ),
 			'showLogo'         => (bool) CKIT_Core::settings( 'show_logo', 0 ),
-			'logoUrl'          => esc_url( CKIT_Core::settings( 'logo_url', '' ) ),
+			'logoUrl'          => esc_url_raw( CKIT_Core::settings( 'logo_url', '' ) ),
 			'logoMaxHeight'    => absint( CKIT_Core::settings( 'logo_max_height', 40 ) ),
 			'banner'           => array(
 				'position' => CKIT_Core::settings( 'banner_position', 'bottom' ),
 				'layout'   => CKIT_Core::settings( 'banner_layout', 'box' ),
 			),
-			'privacyPolicyUrl' => CKIT_Core::settings( 'privacy_policy_url', '/informativa-privacy/' ),
-			'cookiePolicyUrl'  => CKIT_Core::settings( 'cookie_policy_url', '/cookie-policy/' ),
+			'privacyPolicyUrl' => esc_url_raw( CKIT_Core::settings( 'privacy_policy_url', '/informativa-privacy/' ) ),
+			'cookiePolicyUrl'  => esc_url_raw( CKIT_Core::settings( 'cookie_policy_url', '/cookie-policy/' ) ),
 			'lang'             => substr( get_locale(), 0, 2 ),
 		);
 		wp_localize_script( 'ckit-banner', 'CKIT_CFG', $config );

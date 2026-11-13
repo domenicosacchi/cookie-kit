@@ -21,18 +21,50 @@ class CKIT_Blocker {
 	private $vendors = array();
 
 	public function __construct() {
-		if ( ! CKIT_Core::settings( 'enabled', 1 ) || ! CKIT_Core::settings( 'auto_block', 1 ) ) {
+		if ( ! CKIT_Core::settings( 'enabled', 1 ) ) {
 			return;
 		}
 		// Snapshot mode: blocker disattivato per far partire script terzi nativi.
 		if ( CKIT_Core::is_snapshot_mode() ) {
 			return;
 		}
+		// ckit-blocker.js also exposes window.CKIT.applyConsent (Consent Mode v2 "update"),
+		// so it must load even when auto-blocking is off.
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_blocker' ) );
+
+		if ( ! CKIT_Core::settings( 'auto_block', 1 ) ) {
+			return;
+		}
 		$this->vendors = CKIT_Core::vendors();
 
 		add_filter( 'script_loader_tag', array( $this, 'filter_script_tag' ), 10, 3 );
 		add_filter( 'the_content', array( $this, 'filter_content_iframes' ), 999 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_blocker' ) );
+		add_filter( 'wp_resource_hints', array( $this, 'filter_resource_hints' ), 10, 2 );
+	}
+
+	/**
+	 * Remove dns-prefetch/preconnect hints for blocked vendor hosts, so the browser does not
+	 * contact them before consent.
+	 *
+	 * @param array  $urls          Resource hint URLs.
+	 * @param string $relation_type dns-prefetch, preconnect, etc.
+	 * @return array
+	 */
+	public function filter_resource_hints( $urls, $relation_type ) {
+		if ( ! in_array( $relation_type, array( 'dns-prefetch', 'preconnect' ), true ) ) {
+			return $urls;
+		}
+		foreach ( $urls as $i => $hint ) {
+			$href = is_array( $hint ) ? ( isset( $hint['href'] ) ? $hint['href'] : '' ) : $hint;
+			if ( 0 === strpos( $href, '//' ) ) {
+				$href = 'https:' . $href;
+			}
+			$category = $this->category_for_src( $href );
+			if ( $category && 'necessary' !== $category ) {
+				unset( $urls[ $i ] );
+			}
+		}
+		return $urls;
 	}
 
 	public function enqueue_blocker() {
@@ -42,6 +74,14 @@ class CKIT_Blocker {
 			array(),
 			CKIT_VERSION,
 			false // in <head>, non in footer.
+		);
+		wp_localize_script(
+			'ckit-blocker',
+			'CKIT_BLOCKER_CFG',
+			array(
+				'cookieName'    => CKIT_CONSENT_COOKIE,
+				'policyVersion' => CKIT_Core::settings( 'policy_version', '1.0' ),
+			)
 		);
 	}
 

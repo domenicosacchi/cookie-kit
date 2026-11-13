@@ -6,7 +6,8 @@
 (function () {
 	'use strict';
 
-	var COOKIE = 'ckit_consent';
+	var BCFG = window.CKIT_BLOCKER_CFG || {};
+	var COOKIE = BCFG.cookieName || 'ckit_consent';
 
 	function readCookie(name) {
 		var m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[$()*+./?[\\\]^{|}]/g, '\\$&') + '=([^;]*)'));
@@ -18,6 +19,13 @@
 	}
 
 	var stored = parse(readCookie(COOKIE)) || {};
+	// Same validity rules as the banner: a consent given for an older policy version
+	// or past its re-prompt date is treated as missing.
+	if (stored.policy_version && BCFG.policyVersion && stored.policy_version !== BCFG.policyVersion) {
+		stored = {};
+	} else if (stored.expires_at && (new Date(stored.expires_at)).getTime() < Date.now()) {
+		stored = {};
+	}
 	var categories = stored.categories || {};
 	var consentGiven = !!stored.consent_uuid;
 
